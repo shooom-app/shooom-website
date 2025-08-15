@@ -1,0 +1,53 @@
+/* Softer neon red utility */
+.neon-red{
+  color:#e11d48;
+  text-shadow: 0 0 3px rgba(225,29,72,.40), 0 0 8px rgba(251,113,133,.22), 0 0 16px rgba(225,29,72,.16);
+}
+
+/* Transparent cards with soft neon outline */
+.card-neon{
+  background:transparent; border:1px solid rgba(225,29,72,.22); border-radius:1rem;
+  box-shadow: 0 0 0 1px rgba(225,29,72,.14) inset, 0 0 12px rgba(225,29,72,.16), 0 0 20px rgba(251,113,133,.10);
+}
+.card-neon:hover{
+  box-shadow: 0 0 0 1px rgba(225,29,72,.18) inset, 0 0 16px rgba(225,29,72,.19), 0 0 26px rgba(251,113,133,.14);
+}
+
+/* Neon chips */
+.chip-neon{
+  border:1px solid rgba(225,29,72,.26);
+  background:transparent;
+  border-radius:9999px;
+  padding:.35rem .75rem;
+  text-shadow: 0 0 3px rgba(225,29,72,.30), 0 0 8px rgba(251,113,133,.16);
+}
+
+/* Neon button: applies to EarlyAccessForm when wrapped with .neon-scope */
+.neon-scope button, .neon-scope [type="submit"]{
+  all:unset; display:inline-flex; align-items:center; justify-content:center;
+  padding:.9rem 1.2rem; cursor:pointer; user-select:none;
+  border-radius:9999px; font-weight:700; color:#fff;
+  border:1px solid rgba(225,29,72,.38);
+  background:linear-gradient(90deg,#fb7185,#e11d48 60%,#fb7185);
+  box-shadow:0 10px 20px rgba(225,29,72,.24),0 0 14px rgba(251,113,133,.14);
+  transition:filter .15s ease, box-shadow .15s ease;
+}
+.neon-scope button:hover, .neon-scope [type="submit"]:hover{
+  filter:brightness(1.03);
+  box-shadow:0 12px 24px rgba(225,29,72,.30),0 0 20px rgba(251,113,133,.18);
+}
+
+/* Signature layout (animation keyframes live in animations.css) */
+.sig-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;}
+.sig-svg{width:min(86vw,900px);height:118px;}
+.sig-svg text{font-family:var(--font-apple-script),system-ui,sans-serif;font-size:82px;letter-spacing:.02em;}
+#sigRed{
+  stroke:url(#sigGrad); stroke-width:1.5; fill:none;
+  stroke-linecap:round; stroke-linejoin:round;
+  filter:url(#sigGlow);
+  stroke-dasharray:1600; stroke-dashoffset:1600; animation:sigDraw 2.6s ease .2s forwards;
+}
+@media (prefers-reduced-motion:reduce){ #sigRed{animation:none!important;stroke-dashoffset:0;} }
+
+/* Ensure SVG spins around its center */
+.enforce-center>svg{transform-box:fill-box;transform-origin:center;}
