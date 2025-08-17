@@ -13,14 +13,21 @@ export type Step = {
 
 export type SectionBase = { type: string; id?: string; title?: string; subtitle?: string };
 
+/** NEW: simple heading chip above a section (e.g., above stats) */
+export type HeadingSection = SectionBase & { type: "heading"; text: string };
+
 export type StepsSection = SectionBase & { type: "steps"; steps: Step[] };
 export type CTAsSection  = SectionBase & { type: "ctas"; ctas: CTA[] };
 export type StatsSection = SectionBase & { type: "stats"; items: { k: string; v: string }[] };
 
-export type TestimonialsSection = SectionBase & { type: "testimonials"; items: { quote: string; name: string; role?: string }[] };
-export type FAQSection          = SectionBase & { type: "faq"; items: { q: string; a: string }[] };
+export type TestimonialsSection = SectionBase & {
+  type: "testimonials";
+  items: { quote: string; name: string; role?: string }[];
+};
+export type FAQSection = SectionBase & { type: "faq"; items: { q: string; a: string }[] };
 
 export type AnySection =
+  | HeadingSection
   | StepsSection
   | CTAsSection
   | StatsSection

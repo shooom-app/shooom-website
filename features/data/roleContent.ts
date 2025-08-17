@@ -18,13 +18,8 @@ export const roleContent: RoleContent = {
           { icon: "loop",     title: "Play → Review → Level Up", blurb: "Stack reviews, rise in local rankings, unlock higher-tier venues. Momentum looks good in neon." },
         ],
       },
-      {
-        type: "ctas",
-        ctas: [
-          { label: "Get Early Access (DJ)", href: "#early", variant: "primary" },
-          { label: "Preview DJ Profile", href: "#", variant: "ghost" },
-        ],
-      },
+      // Replaced CTA row with a heading chip:
+      { type: "heading", text: "12-month predictions" },
       {
         type: "stats",
         items: [
@@ -51,13 +46,8 @@ export const roleContent: RoleContent = {
           { icon: "crowd",    title: "Book → Review → Repeat",  blurb: "Save favorites, rebook in two taps, grow your regular nights and keep the floor packed." },
         ],
       },
-      {
-        type: "ctas",
-        ctas: [
-          { label: "Get Early Access (Venue)", href: "#early", variant: "primary" },
-          { label: "Preview Venue Listing", href: "#", variant: "ghost" },
-        ],
-      },
+      // Replaced CTA row with a heading chip:
+      { type: "heading", text: "12-month predictions" },
       {
         type: "stats",
         items: [
