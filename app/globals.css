@@ -304,3 +304,125 @@ main[data-role="bar"] .rolelabels .rl:last-child { color: #fff; }
   100% { filter: brightness(1.0); box-shadow: 0 0 16px rgba(220,38,38,0.5); }
 }
 .animate-flashSync { animation: flashSync 0.38s cubic-bezier(0.22,1,0.36,1) 1; }
+
+/* === Warm-Up Bubble (tuned) =============================== */
+/* Keep for legacy bubble usage */
+.bubble {
+  width: clamp(340px, 48vmin, 640px);
+  aspect-ratio: 1 / 1;
+  border-radius: 9999px;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  filter: drop-shadow(0 0 24px color-mix(in oklab, var(--neon) 35%, black));
+  box-shadow:
+    inset 0 0 48px color-mix(in oklab, var(--neon) 35%, transparent),
+    0 0 96px color-mix(in oklab, var(--neon) 25%, transparent);
+  border: 1px solid color-mix(in oklab, var(--neon) 28%, white 12%);
+}
+.bubble::before,
+.bubble::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.bubble::before {
+  background:
+    radial-gradient(120% 120% at 20% 20%, color-mix(in oklab, var(--neon) 90%, transparent) 0%, transparent 60%),
+    radial-gradient(120% 120% at 80% 30%, color-mix(in oklab, var(--neon-2) 85%, transparent) 0%, transparent 55%),
+    radial-gradient(140% 140% at 50% 80%, color-mix(in oklab, var(--neon) 65%, black 10%) 0%, transparent 65%),
+    conic-gradient(from 0deg at 50% 50%, var(--neon), var(--neon-2), var(--neon));
+  filter: blur(10px) saturate(130%);
+  animation: swirl 18s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+.bubble::after {
+  --wave: radial-gradient(60% 12% at 50% 60%, rgba(255,255,255,0.16) 30%, transparent 60%) no-repeat;
+  background:
+    var(--wave),
+    var(--wave),
+    var(--wave);
+  background-size: 140% 40%, 160% 36%, 180% 30%;
+  background-position: 50% 60%, 45% 63%, 55% 66%;
+  mask:
+    radial-gradient(70% 70% at 50% 45%, rgba(0,0,0,0.9) 42%, rgba(0,0,0,0.6) 65%, transparent 100%);
+  animation: slosh 6s ease-in-out infinite, shimmer 8s linear infinite;
+  mix-blend-mode: plus-lighter;
+}
+@keyframes swirl {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); }
+  25%  { transform: translateY(-1.5%) rotate(6deg) scale(1.02); }
+  50%  { transform: translateY(0.5%) rotate(0deg) scale(0.995); }
+  75%  { transform: translateY(1%) rotate(-6deg) scale(1.01); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+@keyframes slosh {
+  0%,100% { background-position: 50% 60%, 45% 63%, 55% 66%; }
+  50%     { background-position: 52% 63%, 47% 66%, 57% 69%; }
+}
+@keyframes shimmer {
+  0%   { filter: brightness(1); }
+  50%  { filter: brightness(1.08); }
+  100% { filter: brightness(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bubble::before,
+  .bubble::after { animation: none !important; }
+}
+
+
+
+
+
+/* === Warm-Up Orb — soft neon red look ====================== */
+.warmup-orb {
+  /* Circle & sizing */
+  position: relative;
+  width: clamp(300px, 44vmin, 560px);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;
+  isolation: isolate;
+
+  /* Ambient red vignette (no black disk) */
+  background:
+    radial-gradient(120% 120% at 50% 45%, rgba(255, 31, 87, 0.16), transparent 70%);
+
+  /* Softer glow */
+  box-shadow:
+    inset 0 0 30px rgba(255, 31, 87, 0.22),
+    0 0 80px rgba(255, 31, 87, 0.18);
+}
+
+/* SVG fills the orb */
+.warmup-orb .orb-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; display: block;
+}
+
+/* unified neon palette (smooth, Apple-ish) */
+.warmup-orb {
+  --slime: color-mix(in oklab, var(--neon) 82%, var(--neon-2) 18%);
+  --slime-dark: color-mix(in oklab, var(--slime) 88%, black 8%);
+  --slime-light: color-mix(in oklab, var(--slime) 92%, white 8%);
+}
+
+/* surface line sheen */
+.warmup-orb .wave-line {
+  fill: none;
+  stroke: url(#surfaceStroke);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--slime) 40%, transparent));
+}
+
+/* labels */
+.warmup-orb .orb-label { position:absolute; inset:0; display:grid; place-items:center; text-align:center; pointer-events:none; }
+.warmup-orb .percent {
+  font-weight: 600; letter-spacing: -0.02em;
+  font-size: clamp(40px, 6.8vmin, 72px); color: #fff;
+  text-shadow: 0 0 10px color-mix(in oklab, var(--slime) 50%, transparent), 0 0 2px rgba(255,255,255,.18);
+}
+.warmup-orb .caption { margin-top: .25rem; font-size: clamp(12px, 2vmin, 14px); color: rgba(255,255,255,.9); }
