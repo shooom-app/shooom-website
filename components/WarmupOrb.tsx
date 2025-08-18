@@ -10,10 +10,11 @@ import {
   useReducedMotion,
 } from "framer-motion";
 
-const TARGET = 78; // final % after fill
+/** Final percentage the liquid settles at */
+const TARGET = 78;
 
 type Props = {
-  // keep props for future but we hard-target 78 to avoid upstream overrides
+  /** kept for future customization; currently ignored for a stable 78% */
   progress?: number;
   ctaHref?: string;
   helper?: string;
@@ -24,25 +25,27 @@ export default function WarmupOrb({
   helper = "Sign up during Warm-Up to get 6 months of Premium free when your city opens.",
 }: Props) {
   const prefersReduced = useReducedMotion();
+
+  // Start animations only when the orb is visible
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const inView = useInView(sectionRef, { margin: "-30% 0px -30% 0px", once: true });
 
-  // Liquid motion values
-  const p = useMotionValue(prefersReduced ? TARGET : 0);   // liquid height %
-  const amp = useMotionValue(prefersReduced ? 0.25 : 1);   // wave energy 1 -> 0.25
+  // Motion values: p = liquid level (%), amp = wave activity (1 -> 0.25)
+  const p = useMotionValue(prefersReduced ? TARGET : 0);
+  const amp = useMotionValue(prefersReduced ? 0.25 : 1);
 
-  // Label (UI)
+  // UI label value (animated during fill)
   const [displayPct, setDisplayPct] = useState(0);
 
-  // Paths
+  // SVG paths for the fill and the surface highlight
   const [fillD, setFillD] = useState<string>("");
   const [lineD, setLineD] = useState<string>("");
 
-  // Wave phase + RAF
+  // wave phase + RAF handle
   const phaseRef = useRef(0);
   const rafRef = useRef<number | null>(null);
 
-  // Start animations when visible
+  /** Start the fill once visible, then idle with a subtle slosh */
   useEffect(() => {
     if (prefersReduced) {
       p.set(TARGET);
@@ -52,21 +55,17 @@ export default function WarmupOrb({
     }
     if (!inView) return;
 
-    const overshoot = Math.min(100, TARGET * 1.02);
-
-    // Fill anim: ALWAYS update label here (was gated before → caused 0%)
-    const fillAnim = animate(p, [0, overshoot, TARGET], {
+    // No overshoot → prevents the 80 → 78 dip
+    const fillAnim = animate(p, TARGET, {
       duration: 7.2,
       ease: [0.16, 1, 0.3, 1],
-      times: [0, 0.9, 1],
-      onUpdate: (v) => setDisplayPct(Math.round(v)),
+      onUpdate: (v) => setDisplayPct(Math.min(TARGET, Math.round(v))), // clamp label
     });
 
     fillAnim.then(() => {
-      // Lock the label so tiny slosh doesn't flicker it
-      setDisplayPct(TARGET);
+      setDisplayPct(TARGET); // lock the label at TARGET
 
-      // Keep liquid alive with small ±0.6% slosh
+      // keep a gentle ±0.6% oscillation forever
       animate(p, [TARGET - 0.6, TARGET + 0.6], {
         duration: 8.0,
         ease: "easeInOut",
@@ -74,15 +73,17 @@ export default function WarmupOrb({
         repeatType: "reverse",
       });
 
-      // Calm waves
+      // decay wave energy for calmer motion
       animate(amp, 0.25, { duration: 8, ease: [0.22, 1, 0.36, 1] });
     });
 
-    return () => fillAnim.stop();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      fillAnim.stop();
+    };
+    // IMPORTANT: keep this dependency array *fixed* to avoid the Next.js warning
   }, [inView, prefersReduced]);
 
-  /** Build smooth wave that extends past edges (prevents right-edge gap) */
+  /** Build a smooth wave that extends past the edges to avoid side gaps */
   const buildWave = (progPct: number, activity: number, phase: number) => {
     const width = 1000;
     const height = 1000;
@@ -90,7 +91,8 @@ export default function WarmupOrb({
     const fillHeight = (progPct / 100) * height;
     const yBase = height - fillHeight;
 
-    const A = 10 + (30 - 10) * Math.min(1, Math.max(0, activity)); // amp from energy
+    // amplitude from "energy"
+    const A = 10 + (30 - 10) * Math.min(1, Math.max(0, activity));
     const lambda = width * 0.9;
     const k = (2 * Math.PI) / lambda;
 
@@ -111,7 +113,7 @@ export default function WarmupOrb({
 
     const overflow = 80;
 
-    // fill path
+    // Filled shape
     let top = `M ${-overflow} ${height} L ${-overflow} ${ys[0]}`;
     for (let i = 1; i <= n; i++) {
       const xc = (xs[i - 1] + xs[i]) / 2;
@@ -121,7 +123,7 @@ export default function WarmupOrb({
     top += ` Q ${xs[n]} ${ys[n]} ${width + overflow} ${ys[n]}`;
     top += ` L ${width + overflow} ${height} L ${-overflow} ${height} Z`;
 
-    // surface line
+    // Surface line
     let line = `M ${-overflow} ${ys[0]}`;
     for (let i = 1; i <= n; i++) {
       const xc = (xs[i - 1] + xs[i]) / 2;
@@ -134,25 +136,38 @@ export default function WarmupOrb({
     setLineD(line);
   };
 
-  // RAF for butter-smooth wave motion
+  /** RAF loop for buttery-smooth wave drift (with correct cleanup) */
   useEffect(() => {
-    buildWave(p.get(), amp.get(), phaseRef.current); // first frame
+    // First frame so hydration shows something
+    buildWave(p.get(), amp.get(), phaseRef.current);
+
     if (prefersReduced || !inView) return;
 
     let last = performance.now();
-    const tick = (t: number) => {
+
+    const tick = (t: number): void => {
       const dt = Math.min(64, t - last);
       last = t;
-      phaseRef.current += 0.0011 * dt; // slow, natural drift
+
+      // ms-based → frame-rate independent
+      phaseRef.current += 0.0011 * dt;
+
       buildWave(p.get(), amp.get(), phaseRef.current);
       rafRef.current = requestAnimationFrame(tick);
     };
 
     rafRef.current = requestAnimationFrame(tick);
-    return () => rafRef.current && cancelAnimationFrame(rafRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    return () => {
+      if (rafRef.current != null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+    // Keep this dependency array *fixed*
   }, [inView, prefersReduced]);
 
+  // expose motion values as CSS vars
   const cssP = useMotionTemplate`${p}`;
   const cssAmp = useMotionTemplate`${amp}`;
   const styleVars = { "--p": cssP, "--amp": cssAmp } as unknown as CSSProperties;
@@ -164,7 +179,9 @@ export default function WarmupOrb({
       aria-labelledby="warmup-title"
       ref={sectionRef}
     >
-      <h2 id="warmup-title" className="sr-only">Warm-Up Phase Progress</h2>
+      <h2 id="warmup-title" className="sr-only">
+        Warm-Up Phase Progress
+      </h2>
 
       {/* ambient vignette */}
       <div
@@ -185,14 +202,18 @@ export default function WarmupOrb({
         >
           <svg className="orb-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none">
             <defs>
+              {/* unified neon red with soft depth */}
               <linearGradient id="liquidFill" x1="0" y1="1" x2="0" y2="0">
-                <stop offset="0%"  stopColor="var(--slime-dark)" />
+                <stop offset="0%" stopColor="var(--slime-dark)" />
                 <stop offset="55%" stopColor="var(--slime)" />
                 <stop offset="100%" stopColor="var(--slime-light)" />
               </linearGradient>
             </defs>
 
+            {/* liquid body */}
             <path d={fillD} fill="url(#liquidFill)" />
+
+            {/* glossy surface line */}
             <path d={lineD} className="wave-line" />
           </svg>
 
@@ -204,6 +225,7 @@ export default function WarmupOrb({
 
         <p className="max-w-xl text-white/80">{helper}</p>
 
+        {/* CTA row */}
         <div className="flex flex-wrap items-center justify-center gap-3">
           <a
             href={ctaHref}
@@ -211,6 +233,7 @@ export default function WarmupOrb({
           >
             Reserve Early Access
           </a>
+
           <details className="group">
             <summary className="cursor-pointer select-none rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white/80 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20">
               What is Warm-Up?

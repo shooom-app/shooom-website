@@ -5,6 +5,8 @@ import RoleSwitch from "@/features/role-flow/RoleSwitch";
 import ContentByRole from "@/features/role-flow/ContentByRole";
 // ⬇️ replace WarmupPhase with WarmupOrb
 import WarmupOrb from "@/components/WarmupOrb";
+import FAQ from "@/components/FAQ";
+import { faqs } from "@/features/data/faqs";
 
 const appleScript = Sacramento({
   weight: "400",
@@ -255,6 +257,9 @@ export default function Home() {
 
       {/* Warm-Up Progress Orb (universal) */}
       <WarmupOrb progress={70} />
+
+      {/* FAQ Section */}
+      <FAQ title="Shooom FAQ" subtitle="Quick answers for DJs & Venues" items={faqs} />
     </main>
   );
 }
