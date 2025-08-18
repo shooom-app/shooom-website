@@ -7,6 +7,7 @@ import ContentByRole from "@/features/role-flow/ContentByRole";
 import WarmupOrb from "@/components/WarmupOrb";
 import FAQ from "@/components/FAQ";
 import { faqs } from "@/features/data/faqs";
+import Marquee from "@/components/Marquee";
 
 const appleScript = Sacramento({
   weight: "400",
@@ -16,54 +17,61 @@ const appleScript = Sacramento({
 
 export default function Home() {
   const chips = [
-    "Verified profiles",
-    "Real reviews",
-    "No middlemen",
-    "72h confirm window",
-    "Genre & vibe tags",
-    "Launching in Denver",
+    "Grow your business",
+    "Grow your career",
+    "Network with the right people",
+    "Find your vibe match",
+    "Dial in your genre match",
+    "Explore with ease",
+    "Daily swipes → huge connections",
   ];
 
   return (
-    <main className={`min-h-screen bg-black text-white ${appleScript.variable}`}>
-      {/* Global blobs */}
-      <div className="global-blobs" aria-hidden="true">
-        <div className="gblob g1" /><div className="gblob g2" /><div className="gblob g3" />
-      </div>
+    <main className={`min-h-screen bg-transparent text-white ${appleScript.variable}`}>
 
       {/* Announcement */}
-      <div className="w-full bg-white/5 border-b border-white/10 relative z-10">
-        <div className="mx-auto max-w-6xl px-6 py-2 text-center text-sm">
-          <strong className="neon-red">Warm-Up first.</strong>{" "}
-          Sign up during Warm-Up to get <strong>6 months of Premium free</strong> when your city opens.
-        </div>
+      <div className="text-center text-xs sm:text-sm py-2 border-b border-white/10 bg-black/60">
+        <span className="opacity-90">Warm-Up first. </span>
+        <span className="opacity-90">
+          Sign up during{" "}
+          <a
+            href="#warmup"
+            className="underline decoration-[color:var(--brand-red)] decoration-2 underline-offset-2 text-[color:var(--brand-red)] hover:opacity-90"
+          >
+            Warm-Up Phase
+          </a>{" "}
+          to get 6 months of <strong>Premium</strong> when the concept warms up.
+        </span>
       </div>
 
       {/* HERO */}
       <section className="relative isolate overflow-hidden min-h-[78vh] flex items-center">
-        <div className="hero-bg" aria-hidden="true">
-          <div className="blob b1" /><div className="blob b2" /><div className="blob b3" /><div className="scrim" />
-        </div>
 
         <div className="mx-auto max-w-6xl px-6 text-center relative z-10 w-full">
-          <h1 className="text-4xl sm:text-6xl font-bold leading-tight">
-            If <span className="neon-red">Tinder</span> and <span className="neon-red">Airbnb</span> had a baby — for{" "}
-            <span className="neon-red">DJs</span> and <span className="neon-red">bars</span>.
+          <h1 className="text-5xl font-bold leading-tight text-center">
+            If <span className="text-brand-gradient">Tinder</span> and <span className="text-brand-gradient">Airbnb</span> had a baby — for
+            <br />
+            <span className="text-brand-gradient">DJs and bars.</span>
           </h1>
 
-          <p className="mt-4 text-white/70 max-w-2xl mx-auto">
-            Built for nightlife: <span className="neon-red font-semibold">verified</span> Instagram profiles,{" "}
-            <span className="neon-red font-semibold">vibe tags</span>, and{" "}
-            <span className="neon-red font-semibold">frictionless booking</span>.
+          <p className="text-center mt-4 text-sm text-white/70">
+            Grow your career/business{"; "}
+            <span className="text-brand font-semibold">verified Instagram profiles</span>,{" "}
+            <span className="text-brand font-semibold">vibe tags</span>,{" "}
+            and <span className="text-brand font-semibold">worldwide connections</span>.
           </p>
 
-          <div className="mt-6 neon-scope">
-            <EarlyAccessForm />
-          </div>
+          <EarlyAccessForm />
 
           <p className="mt-2 text-xs text-white/60">
-            P.S. We launch with a <span className="text-white font-medium">Warm-Up phase</span>. Early signups get{" "}
-            <span className="text-white font-medium">6 months of Premium</span> free when your city opens.
+            P.S. Sign up during{" "}
+            <a
+              href="#warmup"
+              className="text-brand-underline font-medium hover:opacity-90"
+            >
+              Warm-Up Phase
+            </a>{" "}
+            to get 6 months of <span className="text-brand font-semibold">Premium</span> when the concept warms up.
           </p>
 
           {/* Logo + signature */}
@@ -83,29 +91,15 @@ export default function Home() {
                   <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
                 </filter>
               </defs>
-              <text x="600" y="140" textAnchor="middle" id="sigRed">shooom.app</text>
+              <text x="600" y="140" textAnchor="middle" id="sigRed" className="fill-[color:var(--brand-red)]">shooom.app</text>
             </svg>
           </div>
         </div>
       </section>
 
       {/* Marquee */}
-      <section className="ticker-wrap py-4 relative z-10">
-        <div className="ticker-bg" aria-hidden="true">
-          <div className="tb tb1" /><div className="tb tb2" />
-        </div>
-        <div className="ticker">
-          <div className="ticker-mask">
-            <div className="ticker-track">
-              <ul className="ticker-list">
-                {chips.map((c) => <li key={c} className="chip-neon">{c}</li>)}
-              </ul>
-              <ul className="ticker-list" aria-hidden="true">
-                {chips.map((c, i) => <li key={`${c}-dup-${i}`} className="chip-neon">{c}</li>)}
-              </ul>
-            </div>
-          </div>
-        </div>
+      <section className="py-4 relative z-[220] overflow-visible">
+        <Marquee items={chips} speedSec={32} />
       </section>
 
       {/* Example neon cards */}

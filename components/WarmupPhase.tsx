@@ -8,7 +8,7 @@ export default function WarmupPhase() {
   return (
     <section
       id="warmup"
-      className="relative isolate mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-28 sm:pt-36 pb-20 sm:pb-28 scroll-mt-24"
+      className="mx-auto max-w-5xl px-4 py-16"
       aria-labelledby="warmup-title"
     >
       {/* Bubble wrapper (centered) */}

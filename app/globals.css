@@ -12,11 +12,17 @@
   --background: #0a0a0a;
   --foreground: #ededed;
 
-  /* Neon palette */
-  --neon: #ff1f57;           /* main red/pink */
-  --neon-2: #ff6b9b;         /* secondary pink */
+  /* ✅ Canonical brand tokens (single source of truth) */
+  --brand-red: #e11d48;   /* primary red from your logo gradient */
+  --brand-red-2: #fb7185; /* lighter pink from your logo gradient */
+  --brand-bg: #0a0709;
 
-  /* Glow strengths (tweak if needed) */
+  /* 🔗 Aliases so existing code keeps working without refactors */
+  --neon: var(--brand-red);        /* replaces previous hard-coded --neon */
+  --neon-2: var(--brand-red-2);    /* replaces previous hard-coded --neon-2 */
+  --neon-red: var(--brand-red);    /* FAQ and other sections reference this */
+
+  /* Glow strengths (do NOT change) */
   --neon-shadow: rgba(255, 31, 87, 0.18);
   --neon-shadow-strong: rgba(255, 31, 87, 0.6);
   --neon-shadow-stronger: rgba(255, 31, 87, 0.85);
@@ -419,9 +425,6 @@ main[data-role="bar"] .rolelabels .rl:last-child { color: #fff; }
 }
 
 /* ===== Shooom FAQ (Apple-smooth + red neon) ===== */
-:root {
-  --neon-red: #ff2748;
-}
 
 .faq h2 {
   letter-spacing: -0.02em;
@@ -456,3 +459,352 @@ main[data-role="bar"] .rolelabels .rl:last-child { color: #fff; }
     transform: none !important;
   }
 }
+
+/* Smooth scrolling for in-page anchors like #warmup */
+html { scroll-behavior: smooth; }
+
+/* ===== Brand text utilities ===== */
+.text-brand {
+  color: var(--brand-red); /* solid red text */
+}
+
+.text-brand-underline {
+  color: var(--brand-red);
+  text-decoration: underline;
+  text-decoration-color: var(--brand-red);
+  text-underline-offset: 2px;
+  text-decoration-thickness: 2px;
+}
+
+.text-brand-gradient {
+  background: linear-gradient(90deg, var(--brand-red-2), var(--brand-red));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 8px var(--neon-shadow));
+}
+
+/* ===== DJ/Bar Toggle — Shazam-like heartbeat ===== */
+:root { --hb-ease: cubic-bezier(.22,.61,.36,1); } /* iOS-smooth */
+
+@keyframes toggleHeartbeatGlow {
+  /* baseline */
+  0%   {
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.10),
+      0 0 16px rgba(225,29,72,.45),
+      0 0 36px rgba(225,29,72,.28);
+  }
+
+  /* lub (quick, strong) */
+  10%  {
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.18),
+      0 0 28px rgba(225,29,72,.95),
+      0 0 64px rgba(225,29,72,.60);
+  }
+  16%  { /* slight settle */
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.14),
+      0 0 20px rgba(225,29,72,.55),
+      0 0 44px rgba(225,29,72,.38);
+  }
+
+  /* dub (second beat, a touch softer) */
+  22%  {
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.16),
+      0 0 24px rgba(225,29,72,.85),
+      0 0 56px rgba(225,29,72,.50);
+  }
+  28%  { /* settle again */
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.12),
+      0 0 18px rgba(225,29,72,.50),
+      0 0 40px rgba(225,29,72,.32);
+  }
+
+  /* rest (quiet period) */
+  60%  {
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.10),
+      0 0 14px rgba(225,29,72,.40),
+      0 0 30px rgba(225,29,72,.24);
+  }
+
+  /* back to baseline */
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.10),
+      0 0 16px rgba(225,29,72,.45),
+      0 0 36px rgba(225,29,72,.28);
+  }
+}
+
+.toggle-heartbeat {
+  animation: toggleHeartbeatGlow 1.9s var(--hb-ease) infinite;
+  will-change: box-shadow;
+}
+
+/* Motion safety */
+@media (prefers-reduced-motion: reduce) {
+  .toggle-heartbeat { animation: none !important; }
+}
+
+/* ===== Global Background (fixed, inherited on all pages) ===== */
+.global-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #000;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* remove old blob base in favor of unified base below */
+
+/* ===== Stationary, smoke-like red gradient background ===== */
+/* Shared smoke base */
+.smoke-layer {
+  position: absolute;
+  inset: -50%;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  filter: blur(120px) saturate(140%);
+  opacity: 0.4;
+  animation: smokeFlow 60s linear infinite;
+  will-change: transform, opacity, filter;
+}
+
+/* Individual layers (different colors + timings) */
+.smoke1 {
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(225,29,72,0.7),
+    rgba(251,113,133,0.5),
+    transparent 70%
+  );
+  animation-duration: 90s;
+}
+.smoke2 {
+  background: radial-gradient(
+    circle at 30% 40%,
+    rgba(251,113,133,0.6),
+    transparent 70%
+  );
+  animation-duration: 120s;
+  opacity: 0.3;
+}
+.smoke3 {
+  background: conic-gradient(
+    from 90deg at 50% 50%,
+    rgba(225,29,72,0.6),
+    rgba(251,113,133,0.4),
+    transparent 70%
+  );
+  animation-duration: 150s;
+  opacity: 0.35;
+}
+
+/* Subtle swirling motion */
+@keyframes smokeFlow {
+  0%   { transform: rotate(0deg) scale(1);   opacity: 0.35; }
+  25%  { transform: rotate(90deg) scale(1.05); opacity: 0.45; }
+  50%  { transform: rotate(180deg) scale(1); opacity: 0.4; }
+  75%  { transform: rotate(270deg) scale(1.08); opacity: 0.5; }
+  100% { transform: rotate(360deg) scale(1);   opacity: 0.35; }
+}
+
+/* Motion safety */
+@media (prefers-reduced-motion: reduce) {
+  .smoke-layer { animation: none !important; }
+}
+
+/* Scrim to keep text legible */
+.gb-scrim {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 120% at 50% 10%, rgba(0,0,0,0.0), rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.6) 100%),
+    radial-gradient(110% 110% at 50% 90%, rgba(0,0,0,0.0), rgba(0,0,0,0.3) 70%, rgba(0,0,0,0.6) 100%);
+  pointer-events: none;
+}
+
+/* (old gb-float-* keyframes removed; not used) */
+
+
+/* (legacy marquee implementation removed to prevent clipping conflicts) */
+
+
+/* (old single-line marquee with mask-image removed) */
+
+/* ===== Neon chips — Apple-modern glass + glow ===== */
+.chip-neon {
+	display: inline-flex;
+	align-items: center;
+	padding: 9px 16px;
+	border-radius: 999px;
+	font-size: 12px;
+	letter-spacing: .02em;
+	line-height: 1;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+
+	/* subtle glass */
+	background: color-mix(in oklab, #fff 3%, transparent);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+
+	/* neon outline using brand red */
+	border: 1px solid color-mix(in oklab, var(--brand-red) 62%, white 10%);
+	box-shadow:
+		inset 0 0 0.5px rgba(255,255,255,0.25),
+		0 0 12px color-mix(in oklab, var(--brand-red) 34%, transparent),
+		0 0 28px color-mix(in oklab, var(--brand-red) 26%, transparent);
+
+	color: rgba(255,255,255,0.96);
+	text-shadow: 0 0 8px color-mix(in oklab, var(--brand-red) 24%, transparent);
+	transition: transform .22s cubic-bezier(.22,.61,.36,1),
+				  box-shadow .22s cubic-bezier(.22,.61,.36,1),
+				  border-color .22s cubic-bezier(.22,.61,.36,1);
+	will-change: transform, box-shadow;
+}
+
+.chip-neon:hover {
+	transform: translateY(-1px) scale(1.015);
+	border-color: color-mix(in oklab, var(--brand-red) 76%, white 8%);
+	box-shadow:
+		inset 0 0 0.5px rgba(255,255,255,0.32),
+		0 0 16px color-mix(in oklab, var(--brand-red) 55%, transparent),
+		0 0 36px color-mix(in oklab, var(--brand-red) 40%, transparent);
+}
+
+.chip-neon:focus-visible {
+	outline: none;
+	box-shadow:
+		0 0 0 2px color-mix(in oklab, var(--brand-red) 50%, white 30%),
+		0 0 24px color-mix(in oklab, var(--brand-red) 55%, transparent);
+}
+
+
+/* ===== Seamless neon marquee (3-segment stage) ===== */
+.marquee {
+  --duration: 32s;
+  --seg: 800px;          /* JS sets exact width */
+  --spacing: 14px;
+
+  position: relative;
+  overflow: visible;     /* allow neon glows to render */
+  isolation: isolate;    /* new stacking context for safe glows */
+  z-index: 200;          /* above normal content */
+}
+
+/* feather the edges WITHOUT clipping hover glows */
+.marquee::before,
+.marquee::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 8rem;
+  pointer-events: none;
+  z-index: 201;          /* below chips, above background */
+}
+.marquee::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0));
+}
+.marquee::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(0,0,0,0.9), rgba(0,0,0,0));
+}
+
+/* The moving rail holding 3 segments */
+.marquee__stage {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing);
+  white-space: nowrap;
+  will-change: transform;
+  animation: marquee-run var(--duration) linear infinite;
+  transform: translate3d(0,0,0);    /* GPU */
+  z-index: 202;          /* above feather overlays */
+}
+
+.marquee__segment {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Move left by exactly one measured segment width. Because we have 3 segments,
+   the reset happens while a full 2 segments remain onscreen -> no seam. */
+@keyframes marquee-run {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(calc(var(--seg) * -1), 0, 0); }
+}
+
+/* Pause on hover (desktop) */
+.marquee--pause-on-hover:hover .marquee__stage { animation-play-state: paused; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .marquee__stage { animation: none !important; }
+}
+
+/* Responsive spacing & tempo */
+@media (max-width: 768px)  { .marquee { --spacing: 10px; --duration: 24s; } }
+@media (min-width: 1280px) { .marquee { --spacing: 16px; --duration: 36s; } }
+
+/* ===== Neon chips (keep hover clean, no clipping) ===== */
+.chip-neon {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: .02em;
+  line-height: 1;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  /* glass */
+  background: color-mix(in oklab, #fff 3%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  /* neon outline */
+  border: 1px solid color-mix(in oklab, var(--brand-red) 62%, white 10%);
+  box-shadow:
+    inset 0 0 0.5px rgba(255,255,255,0.25),
+    0 0 12px color-mix(in oklab, var(--brand-red) 34%, transparent),
+    0 0 28px color-mix(in oklab, var(--brand-red) 26%, transparent);
+
+  color: rgba(255,255,255,0.96);
+  text-shadow: 0 0 8px color-mix(in oklab, var(--brand-red) 24%, transparent);
+  transition:
+    transform .22s cubic-bezier(.22,.61,.36,1),
+    box-shadow .22s cubic-bezier(.22,.61,.36,1),
+    border-color .22s cubic-bezier(.22,.61,.36,1);
+  will-change: transform, box-shadow;
+  position: relative;
+  z-index: 203; /* top within marquee stack */
+}
+
+.chip-neon:hover {
+  transform: translateY(-1px) scale(1.015);
+  border-color: color-mix(in oklab, var(--brand-red) 76%, white 8%);
+  box-shadow:
+    inset 0 0 0.5px rgba(255,255,255,0.32),
+    0 0 16px color-mix(in oklab, var(--brand-red) 55%, transparent),
+    0 0 36px color-mix(in oklab, var(--brand-red) 40%, transparent);
+}
+
+.chip-neon:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--brand-red) 50%, white 30%),
+    0 0 24px color-mix(in oklab, var(--brand-red) 55%, transparent);
+}
+
