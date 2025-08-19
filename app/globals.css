@@ -4,6 +4,7 @@
 /* Your site-wide utilities */
 @import "./styles/neon.css";
 @import "./styles/animations.css";
+@import "./styles/role-icons.css";
 
 /* ===============================
    Base theme

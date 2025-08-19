@@ -1,0 +1,74 @@
+/* ===== Role Icons Namespace (kept separate from How-it-works) ===== */
+.ri-wrap{
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: var(--brand-red);
+  filter: drop-shadow(0 0 8px rgba(225,29,72,.45));
+}
+
+/* Subtle neon pulse */
+.ri-anim--glow{ animation: riGlow 1.8s ease-in-out infinite; }
+@keyframes riGlow{
+  0%,100%{ filter: drop-shadow(0 0 6px rgba(225,29,72,.35)); }
+  50%    { filter: drop-shadow(0 0 16px rgba(225,29,72,.60)); }
+}
+
+/* Gentle yaw wobble */
+.ri-anim--wobble{ animation: riWobble 2.5s ease-in-out infinite; transform-origin: 50% 50%; }
+@keyframes riWobble{ 0%,100%{ transform: rotate(0) } 50%{ transform: rotate(3deg) } }
+
+/* Light bounce (for tiny dots/cards) */
+.ri-anim--bounce{ animation: riBounce 2.4s cubic-bezier(.22,1,.36,1) infinite; }
+@keyframes riBounce{ 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-3px) } }
+
+/* Radar sweep ring (use with a <span class="ri-radar-ring" />) */
+.ri-anim--radar .ri-radar-ring{
+  position:absolute; inset:0;
+  border: 1.5px solid rgba(225,29,72,.45);
+  border-radius: 9999px;
+  animation: riRadar 2.8s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes riRadar{ from{ transform: scale(.55); opacity:.65 } to{ transform: scale(1.8); opacity:0 } }
+
+/* Hourglass flip */
+.ri-anim--sandflip{ animation: riSand 6s cubic-bezier(.22,1,.36,1) infinite; transform-origin: 50% 60%; }
+@keyframes riSand{
+  0%{transform:rotate(0)}45%{transform:rotate(0)}50%{transform:rotate(180deg)}
+  95%{transform:rotate(180deg)}100%{transform:rotate(360deg)}
+}
+
+/* Twinkle for stars */
+.ri-anim--twinkle{ animation: riTwinkle 1.6s ease-in-out infinite; }
+@keyframes riTwinkle{ 0%,100%{ transform:scale(1); opacity:1 } 50%{ transform:scale(1.06); opacity:.9 } }
+
+/* Martini ripple (glass vibe) */
+.ri-anim--ripple{ animation: riRipple 2.2s ease-in-out infinite; }
+@keyframes riRipple{ 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-1px) } }
+
+/* Stack slide (cards/docs) */
+.ri-anim--stack{ animation: riStack 3s ease-in-out infinite; }
+@keyframes riStack{ 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-4px) } }
+
+/* Continuous loop/rotate */
+.ri-anim--loop{ animation: riLoop 2.2s linear infinite; }
+@keyframes riLoop{ from{ transform: rotate(0) } to{ transform: rotate(360deg) } }
+
+/* Handshake clasp pulse */
+.ri-anim--clasp{ animation: riClasp 1.8s ease-in-out infinite; transform-origin: 50% 60%; }
+@keyframes riClasp{ 0%,100%{ transform:scale(1) } 50%{ transform:scale(.96) } }
+
+/* Slow rotate (globe) */
+.ri-anim--rotate{ animation: riRotate 6s linear infinite; transform-origin: 50% 50%; }
+@keyframes riRotate{ from{ transform: rotate(0) } to{ transform: rotate(360deg) } }
+
+/* Users counter-sway */
+.ri-anim--users{ animation: riUsers 2.2s ease-in-out infinite; transform-origin: 50% 60%; }
+@keyframes riUsers{ 0%,100%{ transform: rotate(0) } 50%{ transform: rotate(2deg) } }
+
+@media (prefers-reduced-motion: reduce){
+  .ri-wrap,[class*="ri-anim--"],.ri-radar-ring{ animation: none !important; }
+}

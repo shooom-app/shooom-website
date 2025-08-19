@@ -1,16 +1,26 @@
 "use client";
+import { useEffect, useState } from "react";
 import { useRole } from "@/features/role/RoleContext";
 import RoleSwitch from "@/features/role/RoleSwitch";
 import RoleMetricsRow from "@/components/role/RoleMetricsRow";
 import { DJ_METRICS, VENUE_METRICS, METRICS_CHIP } from "@/features/role/roleMetrics";
+import { DJ_STEPS, VENUE_STEPS } from "@/features/role/roleSteps";
+import RoleCardStack from "@/components/role/RoleCardStack";
 
 export default function RoleSection() {
   const { role } = useRole();
+  const [index, setIndex] = useState(0);
+
+  // reset stack when role changes
+  useEffect(() => { setIndex(0); }, [role]);
+
   const title = role === "dj" ? "For DJs" : "For Venues";
   const subtitle =
     role === "dj"
       ? "Hello, DJ, let me introduce you how your flow works:"
       : "Hey, Boss, let me explain how your flow works.";
+
+  const steps   = role === "dj" ? DJ_STEPS   : VENUE_STEPS;
   const metrics = role === "dj" ? DJ_METRICS : VENUE_METRICS;
 
   return (
@@ -24,9 +34,19 @@ export default function RoleSection() {
         <RoleSwitch />
       </div>
 
-      <div className="panel-solid neon-outline rounded-2xl h-[420px] grid place-items-center text-center">
-        <div className="text-white/80">Card stack placeholder</div>
-      </div>
+      {/* NEW: card stack */}
+      <RoleCardStack
+        items={steps}
+        index={index}
+        role={role}
+        onChangeIndex={(updater:any) => {
+          // Functional-safe update
+          setIndex((prev) => {
+            if (typeof updater === "function") return updater(prev);
+            return updater;
+          });
+        }}
+      />
 
       {/* Neutral title (keep this chip) */}
       <div className="mt-8 mb-4 text-center">
