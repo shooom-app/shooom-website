@@ -10,28 +10,35 @@ import {
   useReducedMotion,
 } from "framer-motion";
 
-/** Final percentage the liquid settles at */
-const TARGET = 78;
+// Final percentage the liquid settles at is driven by the `progress` prop
 
 type Props = {
   /** kept for future customization; currently ignored for a stable 78% */
   progress?: number;
+  /** Custom label text (defaults to percentage-based) */
+  label?: string;
+  /** Whether to show helper text and CTA buttons (default: true) */
+  showContent?: boolean;
   ctaHref?: string;
   helper?: string;
 };
 
 export default function WarmupOrb({
+  progress = 78,
+  label = `${progress}% warmed up`,
+  showContent = true,
   ctaHref = "#early-access",
   helper = "Sign up during Warm-Up to get 6 months of Premium free when your city opens.",
 }: Props) {
   const prefersReduced = useReducedMotion();
+  const targetPct = Math.max(0, Math.min(100, progress));
 
   // Start animations only when the orb is visible
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const inView = useInView(sectionRef, { margin: "-30% 0px -30% 0px", once: true });
 
   // Motion values: p = liquid level (%), amp = wave activity (1 -> 0.25)
-  const p = useMotionValue(prefersReduced ? TARGET : 0);
+  const p = useMotionValue(prefersReduced ? targetPct : 0);
   const amp = useMotionValue(prefersReduced ? 0.25 : 1);
 
   // UI label value (animated during fill)
@@ -48,25 +55,25 @@ export default function WarmupOrb({
   /** Start the fill once visible, then idle with a subtle slosh */
   useEffect(() => {
     if (prefersReduced) {
-      p.set(TARGET);
+      p.set(targetPct);
       amp.set(0);
-      setDisplayPct(TARGET);
+      setDisplayPct(targetPct);
       return;
     }
     if (!inView) return;
 
     // No overshoot → prevents the 80 → 78 dip
-    const fillAnim = animate(p, TARGET, {
+    const fillAnim = animate(p, targetPct, {
       duration: 7.2,
       ease: [0.16, 1, 0.3, 1],
-      onUpdate: (v) => setDisplayPct(Math.min(TARGET, Math.round(v))), // clamp label
+      onUpdate: (v) => setDisplayPct(Math.min(targetPct, Math.round(v))), // clamp label
     });
 
     fillAnim.then(() => {
-      setDisplayPct(TARGET); // lock the label at TARGET
+      setDisplayPct(targetPct); // lock the label at target
 
       // keep a gentle ±0.6% oscillation forever
-      animate(p, [TARGET - 0.6, TARGET + 0.6], {
+      animate(p, [targetPct - 0.6, targetPct + 0.6], {
         duration: 8.0,
         ease: "easeInOut",
         repeat: Infinity,
@@ -81,7 +88,7 @@ export default function WarmupOrb({
       fillAnim.stop();
     };
     // IMPORTANT: keep this dependency array *fixed* to avoid the Next.js warning
-  }, [inView, prefersReduced]);
+  }, [inView, prefersReduced, targetPct]);
 
   /** Build a smooth wave that extends past the edges to avoid side gaps */
   const buildWave = (progPct: number, activity: number, phase: number) => {
@@ -217,34 +224,41 @@ export default function WarmupOrb({
             <path d={lineD} className="wave-line" />
           </svg>
 
-          <div className="orb-label">
-            <div className="percent">{displayPct}%</div>
-            <div className="caption">Warm-Up Full</div>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span
+              className="whitespace-nowrap leading-none tracking-tight text-white font-semibold text-[clamp(22px,4vw,42px)]"
+            >
+              {label}
+            </span>
           </div>
         </motion.div>
 
-        <p className="max-w-xl text-white/80">{helper}</p>
+        {showContent && (
+          <>
+            <p className="max-w-xl text-white/80">{helper}</p>
 
-        {/* CTA row */}
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <a
-            href={ctaHref}
-            className="rounded-xl bg-red-500/90 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-500/30 transition hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/60"
-          >
-            Reserve Early Access
-          </a>
+            {/* CTA row */}
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <a
+                href={ctaHref}
+                className="rounded-xl bg-red-500/90 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-500/30 transition hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/60"
+              >
+                Reserve Early Access
+              </a>
 
-          <details className="group">
-            <summary className="cursor-pointer select-none rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white/80 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20">
-              What is Warm-Up?
-            </summary>
-            <div className="mt-3 max-w-md text-sm text-white/70">
-              Warm-Up is our pre-launch onboarding window. Early signups help
-              shape features and get <strong>6 months of Premium free</strong>{" "}
-              when their city opens. We roll out city-by-city, starting with Denver.
+              <details className="group">
+                <summary className="cursor-pointer select-none rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white/80 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20">
+                  What is Warm-Up?
+                </summary>
+                <div className="mt-3 max-w-md text-sm text-white/70">
+                  Warm-Up is our pre-launch onboarding window. Early signups help
+                  shape features and get <strong>6 months of Premium free</strong>{" "}
+                  when their city opens. We roll out city-by-city, starting with Denver.
+                </div>
+              </details>
             </div>
-          </details>
-        </div>
+          </>
+        )}
       </div>
     </section>
   );

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 type Props = {
   items: string[];
@@ -35,12 +35,12 @@ export default function Marquee({
       ro.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [items.join("|")]);
+  }, [items]);
 
-  const style = {
-    ["--seg" as any]: `${segWidth}px`,
-    ["--duration" as any]: `${speedSec}s`,
-  } as React.CSSProperties;
+  const style: React.CSSProperties & { [key: `--${string}`]: string } = {
+    ["--seg"]: `${segWidth}px`,
+    ["--duration"]: `${speedSec}s`,
+  } as const;
 
   const marqueeCls =
     "marquee w-full select-none" +

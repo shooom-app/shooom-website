@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FAQ } from "@/features/data/faqs";
+import type { FAQ } from "@/features/data/faqs";
 
 interface FAQProps {
   title: string;

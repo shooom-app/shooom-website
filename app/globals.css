@@ -26,6 +26,11 @@
   --neon-shadow: rgba(255, 31, 87, 0.18);
   --neon-shadow-strong: rgba(255, 31, 87, 0.6);
   --neon-shadow-stronger: rgba(255, 31, 87, 0.85);
+
+  /* Panel tokens */
+  --panel-solid: color-mix(in oklab, var(--brand-bg) 88%, white 12%);
+  --neon: color-mix(in oklab, var(--brand-red) 78%, white 22%);
+  --neon-soft: color-mix(in oklab, var(--brand-red-2) 55%, transparent);
 }
 @media (prefers-color-scheme: light) {
   :root {
@@ -34,6 +39,96 @@
   }
 }
 
+/* ===== Role Flow (glass neon toggle, swipe deck, metrics) ===== */
+/* Glass container */
+.glass {
+  background: color-mix(in oklab, rgba(255,255,255,0.06), transparent 40%);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid color-mix(in oklab, white 14%, transparent);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.06) inset,
+    0 22px 60px rgba(0,0,0,0.40);
+  isolation: isolate;
+}
+
+/* Neon icon look (stroke only) */
+.neon-icon {
+  stroke: color-mix(in oklab, var(--brand-red) 80%, white 20%);
+  fill: none;
+  filter:
+    drop-shadow(0 0 4px color-mix(in oklab, var(--brand-red) 55%, transparent))
+    drop-shadow(0 0 10px color-mix(in oklab, var(--brand-red-2) 45%, transparent));
+}
+
+/* Role toggle */
+.toggle-wrap {
+  display: flex; align-items: center; padding: 0.25rem; border-radius: 9999px; margin-left: auto; margin-right: auto;
+}
+.toggle-wrap { background: color-mix(in oklab, rgba(255,255,255,0.06), transparent 40%); backdrop-filter: blur(16px) saturate(120%); -webkit-backdrop-filter: blur(16px) saturate(120%); border: 1px solid color-mix(in oklab, white 14%, transparent); box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 22px 60px rgba(0,0,0,0.40); isolation: isolate; }
+.toggle-seg {
+  padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; transition: all .3s ease; user-select: none; color: rgba(255,255,255,.8);
+}
+.toggle-seg[data-active="true"] {
+  color: white;
+  background: color-mix(in oklab, var(--brand-red) 92%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, white 14%, transparent) inset,
+    0 0 18px color-mix(in oklab, var(--brand-red-2) 55%, transparent);
+}
+
+/* Swipe deck */
+.deck-stage { perspective: 1400px; position: relative; height: 360px; }
+.deck-card { 
+  position: absolute; 
+  inset: 0; 
+  background: none; 
+  border: none; 
+  box-shadow: none; 
+  backdrop-filter: none; 
+  -webkit-backdrop-filter: none;
+}
+.deck-card[data-front="true"]::after {
+  content: ""; position: absolute; inset: -2px; border-radius: 1.25rem;
+  background:
+    radial-gradient(55% 55% at 25% 15%, color-mix(in oklab, var(--brand-red) 22%, transparent) 0%, transparent 70%),
+    radial-gradient(45% 45% at 80% 75%, color-mix(in oklab, var(--brand-red-2) 16%, transparent) 0%, transparent 70%);
+  filter: blur(16px); opacity: 0; transition: opacity .35s ease; pointer-events: none;
+}
+.deck-card[data-front="true"]:hover::after { opacity: .5; }
+@media (prefers-reduced-motion: reduce) {
+  .deck-card[data-front="true"]::after { display: none; }
+}
+
+/* ==== Deck hardening (no see-through) ==== */
+.deck-sandbox,
+.deck-sandbox * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Ensure .panel-solid is fully opaque (no alpha) */
+.panel-solid {
+  background: color-mix(in oklab, var(--brand-bg) 88%, black);
+}
+
+/* Prevent accidental opacity transitions on cards */
+.panel-solid.neon-outline {
+  transition-property: transform, box-shadow, filter, background-color;
+}
+
+/* Metrics */
+.metric { padding: 1.5rem; border-radius: 1.25rem; text-align: center; }
+.metric { background: color-mix(in oklab, rgba(255,255,255,0.06), transparent 40%); backdrop-filter: blur(16px) saturate(120%); -webkit-backdrop-filter: blur(16px) saturate(120%); border: 1px solid color-mix(in oklab, white 14%, transparent); box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 22px 60px rgba(0,0,0,0.40); isolation: isolate; }
+.metric .num {
+  font-size: clamp(22px, 4vw, 36px);
+  color: white;
+  text-shadow:
+    0 0 0.6px rgba(255,255,255,.35),
+    0 0 8px color-mix(in oklab, var(--brand-red) 45%, transparent);
+}
+.metric .label { color: rgba(255,255,255,0.7); font-size: 0.875rem; margin-top: 0.25rem; }
 html, body { height: 100%; }
 body {
   margin: 0;
@@ -79,6 +174,53 @@ body {
 .hiw-icon { width: 54px; height: 54px; display: grid; place-items: center; }
 
 /* ===============================
+   Glass neon cards (shared)
+   =============================== */
+.card-glass-neon {
+  position: relative;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  border: 1px solid color-mix(in oklab, var(--brand-red) 42%, white 10%);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  box-shadow:
+    inset 0 0 0.5px rgba(255,255,255,0.25),
+    0 10px 24px rgba(225,29,72,0.20),
+    0 0 28px rgba(225,29,72,0.20);
+  overflow: visible;
+  isolation: isolate;
+  transition:
+    transform .3s cubic-bezier(.22,.61,.36,1),
+    box-shadow .3s cubic-bezier(.22,.61,.36,1),
+    border-color .3s ease,
+    background .3s ease;
+}
+.card-glass-neon::before {
+  content: "";
+  position: absolute;
+  inset: -8%;
+  border-radius: inherit;
+  background: radial-gradient(120px 80px at 25% 15%, color-mix(in oklab, var(--brand-red) 55%, transparent), transparent 60%);
+  filter: blur(22px);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity .3s ease, filter .3s ease;
+}
+.card-glass-neon:hover {
+  box-shadow:
+    inset 0 0 0.5px rgba(255,255,255,0.32),
+    0 16px 36px rgba(225,29,72,0.32),
+    0 0 42px rgba(225,29,72,0.36);
+  border-color: color-mix(in oklab, var(--brand-red) 70%, white 10%);
+}
+.card-glass-neon:hover::before { opacity: 1; filter: blur(28px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .card-glass-neon,
+  .card-glass-neon::before { transition: none !important; }
+}
+
+/* ===============================
    Neon Icon Base (used by Search/GPS/Heart)
    =============================== */
 .icon-neon {
@@ -115,7 +257,8 @@ body {
 }
 
 /* Micro lift on hover */
-.hiw-card:hover .icon-neon {
+.hiw-card:hover .icon-neon,
+.card-glass-neon:hover .icon-neon {
   transition: transform .3s ease;
   transform: translateY(-1px) scale(1.02);
 }
@@ -265,9 +408,11 @@ main[data-role="bar"] .rolelabels .rl:last-child { color: #fff; }
 /* ===============================
    Performance helpers
    =============================== */
-.hiw-card .icon-neon * { animation-play-state: paused; }
+.hiw-card .icon-neon *,
+.card-glass-neon .icon-neon * { animation-play-state: paused; }
 @media (hover:hover) and (pointer:fine) {
-  .hiw-card:hover .icon-neon * { animation-play-state: running; }
+  .hiw-card:hover .icon-neon *,
+  .card-glass-neon:hover .icon-neon * { animation-play-state: running; }
 }
 /* If you wrap the section in a container that toggles `.inview`, animations run when visible */
 .play-when-visible.inview .icon-neon * { animation-play-state: running; }
@@ -686,6 +831,122 @@ html { scroll-behavior: smooth; }
 }
 
 
+/* ===== Puzzle glass container ===== */
+.puzzle-wrap {
+  background: color-mix(in oklab, rgba(255,255,255,0.06), transparent 40%);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid color-mix(in oklab, white 12%, transparent);
+  border-radius: 1.25rem; /* rounded-2xl */
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.06) inset,
+    0 16px 40px rgba(0,0,0,0.35);
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+}
+
+/* Subtle dividers between pieces */
+.puzzle-wrap::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right,
+      transparent 33.33%,
+      rgba(255,255,255,0.06) 33.33%, rgba(255,255,255,0.06) 33.9%,
+      transparent 33.9%,
+      transparent 66.66%,
+      rgba(255,255,255,0.06) 66.66%, rgba(255,255,255,0.06) 67.26%,
+      transparent 67.26%);
+  border-radius: inherit;
+}
+
+/* ===== Puzzle tiles ===== */
+.puzzle-tile {
+  position: relative;
+  padding: 1.5rem; /* p-6 */
+  min-height: 9.5rem;
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.puzzle-tile:hover { transform: translateY(2px); }
+
+/* Neon aura on hover */
+.puzzle-tile::after {
+  content: "";
+  position: absolute; inset: -2px;
+  border-radius: 1rem;
+  background:
+    radial-gradient(60% 60% at 30% 20%, color-mix(in oklab, var(--brand-red) 28%, transparent) 0%, transparent 70%),
+    radial-gradient(55% 55% at 80% 80%, color-mix(in oklab, var(--brand-red-2) 18%, transparent) 0%, transparent 70%);
+  filter: blur(18px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s ease;
+}
+.puzzle-tile:hover::after { opacity: .7; }
+
+/* ===== Interlocking “bumps” ===== */
+.puzzle-a::before,
+.puzzle-b::before,
+.puzzle-b::after,
+.puzzle-c::before {
+  content: "";
+  position: absolute;
+  width: 36px; height: 36px; /* bump size */
+  top: 50%; transform: translateY(-50%);
+  border-radius: 9999px;
+  background: inherit;
+  border: 1px solid color-mix(in oklab, white 12%, transparent);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.06) inset,
+    0 8px 24px rgba(0,0,0,0.25);
+  backdrop-filter: inherit;
+  -webkit-backdrop-filter: inherit;
+  z-index: 1;
+}
+.puzzle-a::before { right: -18px; }
+.puzzle-b::before { left: -18px; }
+.puzzle-b::after  { right: -18px; }
+.puzzle-c::before { left: -18px; }
+
+/* Mobile: stack, hide bumps */
+@media (max-width: 639px) {
+  .puzzle-a::before, .puzzle-b::before, .puzzle-b::after, .puzzle-c::before { display: none; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .puzzle-tile, .puzzle-tile::after { transition: none; }
+}
+
+/* ===== Signature wordmark (refined Apple-like neon) ===== */
+.signature-neon {
+  font-family: var(--font-apple-script), "Sacramento", cursive;
+  font-size: clamp(28px, 5vw, 56px);
+  letter-spacing: 0.4px;
+  line-height: 1;
+  color: color-mix(in oklab, var(--brand-red-2) 78%, white 22%);
+  /* Softer, more Apple-like glow (reduced intensity & spread) */
+  text-shadow:
+    0 0 0.5px rgba(255,255,255,0.25),
+    0 0 4px color-mix(in oklab, var(--brand-red) 45%, transparent),
+    0 0 10px color-mix(in oklab, var(--brand-red-2) 38%, transparent);
+  /* Very subtle breathing; longer cycle */
+  animation: signatureGlowSoft 6s ease-in-out 1.2s infinite alternate;
+  will-change: filter, text-shadow;
+}
+
+@keyframes signatureGlowSoft {
+  0%   { filter: drop-shadow(0 0 4px color-mix(in oklab, var(--brand-red) 35%, transparent)); }
+  100% { filter: drop-shadow(0 0 7px color-mix(in oklab, var(--brand-red-2) 45%, transparent)); }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .signature-neon { animation: none; }
+}
+
 /* ===== Seamless neon marquee (3-segment stage) ===== */
 .marquee {
   --duration: 32s;
@@ -792,6 +1053,55 @@ html { scroll-behavior: smooth; }
   z-index: 203; /* top within marquee stack */
 }
 
+/* One-piece glass shell */
+.glass-shell {
+  background: color-mix(in oklab, rgba(255,255,255,0.06), transparent 40%);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid color-mix(in oklab, white 14%, transparent);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.06) inset,
+    0 22px 60px rgba(0,0,0,0.40);
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+}
+
+/* Tile content blocks (no backgrounds) */
+.puzzle-tile {
+  position: relative;
+  padding: 1.5rem; /* p-6 */
+  min-height: 10rem;
+  transition: transform .28s ease;
+}
+.puzzle-tile:hover { transform: translateY(2px); }
+
+/* Soft neon hint on hover (subtle) */
+.puzzle-tile::after {
+  content: "";
+  position: absolute; inset: -2px;
+  border-radius: 1rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s ease;
+  background:
+    radial-gradient(55% 55% at 30% 25%, color-mix(in oklab, var(--brand-red) 22%, transparent) 0%, transparent 70%),
+    radial-gradient(45% 45% at 80% 75%, color-mix(in oklab, var(--brand-red-2) 16%, transparent) 0%, transparent 70%);
+  filter: blur(16px);
+}
+.puzzle-tile:hover::after { opacity: .5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .puzzle-tile, .puzzle-tile::after { transition: none; }
+}
+
+/* SVG overlay element sits above glass, below content */
+.puzzle-overlay {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
 .chip-neon:hover {
   transform: translateY(-1px) scale(1.015);
   border-color: color-mix(in oklab, var(--brand-red) 76%, white 8%);
@@ -808,3 +1118,159 @@ html { scroll-behavior: smooth; }
     0 0 24px color-mix(in oklab, var(--brand-red) 55%, transparent);
 }
 
+
+/* ===== Glass card base (Apple-like, subtle neon) ===== */
+.glass-card {
+  background: color-mix(in oklab, rgba(255,255,255,0.06), transparent 40%);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid color-mix(in oklab, white 14%, transparent);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.06) inset,
+    0 22px 60px rgba(0,0,0,0.40);
+  position: relative;
+  isolation: isolate;
+}
+
+/* Hover depth + soft neon */
+.glass-card:hover { transform: translateY(2px); }
+.glass-card {
+  transition: transform .28s ease, box-shadow .28s ease, filter .28s ease;
+}
+.glass-card::after {
+  content: "";
+  position: absolute; inset: -2px;
+  border-radius: 1rem;
+  background:
+    radial-gradient(55% 55% at 30% 25%, color-mix(in oklab, var(--brand-red) 22%, transparent) 0%, transparent 70%),
+    radial-gradient(45% 45% at 80% 75%, color-mix(in oklab, var(--brand-red-2) 16%, transparent) 0%, transparent 70%);
+  filter: blur(16px);
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s ease;
+}
+.glass-card:hover::after { opacity: .55; }
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-card, .glass-card::after { transition: none; }
+}
+
+/* ===== Masks (reference the inline SVG defs by id) ===== */
+.mask-left  { mask: url(#mask-left);  -webkit-mask: url(#mask-left); }
+.mask-mid   { mask: url(#mask-mid);   -webkit-mask: url(#mask-mid); }
+.mask-right { mask: url(#mask-right); -webkit-mask: url(#mask-right); }
+
+/* Fallback for very old browsers: on small screens we drop masks */
+@media (max-width: 639px) {
+  .mask-left, .mask-mid, .mask-right { mask: none; -webkit-mask: none; }
+}
+
+/* Hairline seam overlay (extra clarity) */
+.puzzle-seams {
+  pointer-events: none; position: absolute; inset: 0;
+}
+
+/* ===== Role Flow: Solid panels + neon icons ===== */
+/* Solid glass panel (no see-through) */
+.panel-solid {
+  /* opaque, still glossy */
+  background: var(--panel-solid);
+  /* faint inner glow edge */
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.06) inset,
+    0 0 0 1px color-mix(in oklab, white 10%, transparent),
+    0 22px 60px rgba(0,0,0,.40);
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in oklab, white 12%, transparent);
+  isolation: isolate;
+}
+
+.neon-outline {
+  /* subtle brand red outline + glow */
+  box-shadow:
+    0 0 0 1px var(--neon),
+    0 0 12px var(--neon-soft),
+    0 8px 28px rgba(0,0,0,.35);
+}
+
+.card-title { color:#fff; }
+.card-body  { color: rgba(255,255,255,.82); }
+
+/* Replace deck-card glass with solid panel look */
+.deck-card { 
+  background: transparent; 
+  border: 0; 
+  box-shadow: none; 
+  backdrop-filter: none; 
+  -webkit-backdrop-filter: none;
+}
+.deck-card > .panel-solid {
+  width: 100%; 
+  height: 100%; 
+  padding: 1.5rem; 
+  border-radius: 1.25rem;
+}
+@media (min-width: 640px) { .deck-card > .panel-solid { padding: 2rem; } }
+.deck-card[data-front="true"]::after { display: none; } /* remove aura overlay on new solid panels */
+
+/* Prevent initial blur/transition flicker on panels */
+.panel-solid, .deck-card, .panel-solid * {
+  transition: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Solid metric look */
+.metric { background: none; border: none; box-shadow: none; }
+.metric > .panel-surface {
+  /* @apply w-full h-full p-6 sm:p-8 rounded-[1.25rem] text-center; */
+  width: 100%; height: 100%; padding: 1.5rem; border-radius: 1.25rem; text-align: center;
+  background: color-mix(in oklab, var(--brand-bg) 86%, white 14%);
+  border: 1px solid color-mix(in oklab, white 12%, transparent);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.06) inset,
+    0 0 0 1px color-mix(in oklab, white 10%, transparent),
+    0 22px 60px rgba(0,0,0,.40);
+}
+@media (min-width: 640px) { .metric > .panel-surface { padding: 2rem; } }
+
+/* Neon stroke + glow (shared by our custom icons) */
+.neon-stroke {
+  stroke: color-mix(in oklab, var(--brand-red) 78%, white 22%);
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter:
+    drop-shadow(0 0 3px color-mix(in oklab, var(--brand-red) 55%, transparent))
+    drop-shadow(0 0 9px color-mix(in oklab, var(--brand-red-2) 45%, transparent));
+}
+
+/* Micro-animations */
+@keyframes glowBreath { 0% { opacity:.9 } 100% { opacity:1 } }
+@keyframes wiggleSoft { 0%{ transform:rotate(0deg) } 50%{ transform:rotate(1.25deg) } 100%{ transform:rotate(0deg) } }
+@keyframes pulseDot { 0%{ r:1.8; opacity:.85 } 100%{ r:3.2; opacity:0 } }
+@keyframes sandFlow {
+  0%{ stroke-dashoffset: 24 }
+  100%{ stroke-dashoffset: 0 }
+}
+.icon-wrap { animation: glowBreath 4.5s ease-in-out 1s infinite alternate; }
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-wrap { animation: none; }
+}
+
+.num {
+  font-size: clamp(22px, 4vw, 36px);
+  color: white;
+  text-shadow:
+    0 0 .6px rgba(255,255,255,.35),
+    0 0 8px color-mix(in oklab, var(--brand-red) 45%, transparent);
+}
+.label { color: rgba(255,255,255,0.7); font-size: 0.875rem; margin-top: 0.25rem; }
+
+/* celebration overlay sits above everything and blends softly */
+.celebrate-overlay {
+  background: radial-gradient(900px 900px at 50% 60%, rgba(225,29,72,0.08), rgba(10,7,9,0) 70%);
+  backdrop-filter: blur(0px); /* keep 0 to avoid deck artifacts */
+  -webkit-backdrop-filter: blur(0px);
+}
