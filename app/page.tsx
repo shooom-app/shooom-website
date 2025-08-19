@@ -1,8 +1,7 @@
 import { Sacramento } from "next/font/google";
 import EarlyAccessForm from "@/components/EarlyAccessForm";
 import NeonVinylLogo from "@/components/NeonVinylLogo";
-import RoleSwitch from "@/features/role-flow/RoleSwitch";
-import ContentByRole from "@/features/role-flow/ContentByRole";
+// Role Flow removed; placeholder below
 // ⬇️ replace WarmupPhase with WarmupOrb
 import WarmupOrb from "@/components/WarmupOrb";
 import FAQ from "@/components/FAQ";
@@ -10,6 +9,8 @@ import { faqs } from "@/features/data/faqs";
 import Marquee from "@/components/Marquee";
 import ShooomWordmark from "@/components/ShooomWordmark";
 import HowItWorksPuzzle from "@/components/HowItWorksPuzzle";
+import RoleSection from "@/components/sections/RoleSection";
+import { RoleProvider } from "@/features/role/RoleContext";
 
 const appleScript = Sacramento({
   weight: "400",
@@ -95,17 +96,9 @@ export default function Home() {
 
       {/* How it works — Masked glass puzzle */}
       <HowItWorksPuzzle />
-
-      {/* Toggle section AFTER How it works */}
-      <section className="relative mx-auto max-w-6xl px-6 py-20">
-        <div className="text-center">
-          <RoleSwitch />
-        </div>
-      </section>
-
-      {/* ==== Role-specific content START ==== */}
-      <ContentByRole />
-      {/* ==== Role-specific content END ==== */}
+      <RoleProvider>
+        <RoleSection />
+      </RoleProvider>
 
       {/* Warm-Up Progress Orb (universal) */}
       <WarmupOrb progress={70} />

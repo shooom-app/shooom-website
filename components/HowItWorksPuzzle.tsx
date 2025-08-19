@@ -137,7 +137,7 @@ export default function HowItWorksPuzzle() {
 						</div>
 						<h3 className="text-lg sm:text-xl font-semibold mb-1.5">Match</h3>
 						<p className="text-white/70 text-sm leading-6">
-							When you match, open chat to align details and finalize the booking. You’ll have a focused,
+							When you match, open chat to align details and finalize the booking. You'll have a focused,
 							72-hour window—built for purposeful connections.
 						</p>
 					</div>
@@ -146,3 +146,6 @@ export default function HowItWorksPuzzle() {
 		</section>
 	);
 }
+
+
+
