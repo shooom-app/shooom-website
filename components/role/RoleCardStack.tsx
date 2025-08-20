@@ -1,99 +1,116 @@
 "use client";
+import React from "react";
 import { motion } from "framer-motion";
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useMeasure } from "@/hooks/useMeasure";
+import { useRole } from "@/features/role/RoleContext";
 import RoleStepCard from "@/components/role/RoleStepCard";
 import type { StepItem } from "@/features/role/roleSteps";
 
 export default function RoleCardStack({
-  items, index, role, onChangeIndex,
+  items, index, onChangeIndex, onIndexChange,
 }:{
   items: StepItem[];
   index: number;
-  role: "dj" | "venue";
-  onChangeIndex: (i: number) => void;
+  onChangeIndex: (i: number | ((prev:number)=>number)) => void;
+  onIndexChange?: (i:number)=>void;
 }){
-  // Derive lastIndex & visible slice each render
-  const lastIndex = items.length > 0 ? items.length - 1 : 0;
-  const visible = useMemo(() => items.slice(index, Math.min(index + 3, items.length)), [items, index]);
+  const total = 6;
+  const outerRef = React.useRef<HTMLDivElement>(null);
+  const frontRef = React.useRef<HTMLDivElement>(null);
+  const { height } = useMeasure(frontRef); // measure only the front face
+  const { role } = useRole();
 
-  // Simple animation lock to prevent rapid double-advance
-  const [locked, setLocked] = useState(false);
-  const lockT = useRef<number | null>(null);
-  useEffect(() => () => { if (lockT.current) { window.clearTimeout(lockT.current); } }, []);
+  // *** IMPORTANT: clamp + report index changes
+  const clamp = (v: number) => Math.max(0, Math.min(total - 1, v));
+  const goTo = (i: number) => onChangeIndex(clamp(i));
 
-  function go(delta: -1 | 1) {
-    if (locked) return;
-    setLocked(true);
-    // duration should roughly match the spring settle
-    lockT.current = window.setTimeout(() => setLocked(false), 320);
+  React.useEffect(() => { onIndexChange?.(index); }, [index, onIndexChange]);
 
-    onChangeIndex((prev: any) => {
-      // Support functional updates in parent (RoleSection)
-      const next = typeof prev === "number" ? prev + delta : (index + delta);
-      return Math.max(0, Math.min(lastIndex, next));
-    });
-  }
+  // Reset to first face on role change + allow remeasure
+  React.useEffect(() => {
+    goTo(0);
+    const t = setTimeout(() => {}, 50);
+    return () => clearTimeout(t);
+  }, [role]);
 
-  const canPrev = index > 0 && !locked;
-  const canNext = index < lastIndex && !locked;
+  // KEYBOARD nav (if you have)
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowLeft") goTo(index - 1);
+    if (e.key === "ArrowRight") goTo(index + 1);
+    if (/^[1-6]$/.test(e.key)) goTo(Number(e.key) - 1);
+  };
 
-  const scaleFor = (i: number) => 1 - i * 0.045; // peeks smaller
+  // *** Listen for rail jumps
+  React.useEffect(() => {
+    const h = (e: any) => goTo(Number(e.detail));
+    window.addEventListener("role:jump", h as any);
+    return () => window.removeEventListener("role:jump", h as any);
+  }, []);
 
+  // Animation variants for smooth transitions
+  const faceVariants = {
+    enter: (d: 1 | -1) => ({
+      opacity: 0,
+      y: d * 6,
+      scale: 0.992,
+      filter: "blur(3px)",
+    }),
+    center: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+    },
+    exit: (d: 1 | -1) => ({
+      opacity: 0,
+      y: -d * 6,
+      scale: 0.992,
+      filter: "blur(3px)",
+    }),
+  };
+  const faceTransition = { type: "spring", stiffness: 380, damping: 38, mass: 0.7 };
+
+  // ===== RENDER =====
   return (
-    <div className="relative w-full max-w-xl mx-auto" aria-live="polite">
-      {/* Cards */}
-      <div className="relative h-[420px]">
-        {visible.map((item, i) => (
-          <motion.div
-            key={`${role}-${index+i}-${item.title}`}
-            initial={false}
-            animate={{ y: i * 12, scale: scaleFor(i) }}
-            transition={{ type: "spring", stiffness: 210, damping: 24, mass: 0.8 }}
-            className={`absolute inset-0 ${i === 0 ? "" : "pointer-events-none select-none"}`}
-            style={{
-              zIndex: 30 - i,                 // ensure front is on top
-              filter: "none", WebkitFilter: "none",
-              // @ts-expect-error vendor
-              backdropFilter: "none", WebkitBackdropFilter: "none",
-              opacity: 1,
-              contain: "layout style paint size",
-              willChange: "transform",
-              backfaceVisibility: "hidden",
-              transform: "translateZ(0)",
-            }}
-          >
-            <RoleStepCard
-              index={index + i}
-              total={items.length}
-              step={item}
-              compact={i > 0}
-            />
-          </motion.div>
-        ))}
-      </div>
+    <div
+      id="role-stack"
+      ref={outerRef}
+      className="relative overflow-visible mb-4"
+      style={{ height: height ? `${height}px` : undefined }}
+      onKeyDown={onKeyDown}
+      role="region"
+      aria-live="polite"
+      aria-label={`Step ${index + 1} of ${total}`}
+      tabIndex={0}
+    >
+      {/* (TEMP) Disable peeks until front card is stable */}
+      {/* If you want peeks later, re-enable with style={{height}} and z-0 */}
 
-      {/* Controls */}
-      <div className="mt-4 flex items-center justify-center gap-3">
+      {/* FRONT CARD */}
+      <motion.div
+        key={index}               // forces proper re-render when index changes
+        ref={frontRef}
+        className="hiw-card will-change-auto relative z-10"
+      >
+        {/* Invisible hit areas */}
         <button
-          type="button"
-          onClick={() => go(-1)}
-          disabled={!canPrev}
-          className="rounded-xl px-3 py-2 panel-solid neon-outline disabled:opacity-50 active:scale-95 transition-transform"
           aria-label="Previous step"
-        >
-          ← Prev
-        </button>
+          className="absolute left-0 top-0 h-full w-1/2 cursor-pointer"
+          style={{ background: "transparent", border: "0" }}
+          onClick={() => window.dispatchEvent(new CustomEvent("role:jump", { detail: Math.max(0, index - 1) }))}
+        />
         <button
-          type="button"
-          onClick={() => go(1)}
-          disabled={!canNext}
-          className="rounded-xl px-3 py-2 panel-solid neon-outline disabled:opacity-50 active:scale-95 transition-transform"
-          aria-label={index < lastIndex ? `Next: ${items[index+1].title}` : "Next step"}
-          title={index < lastIndex ? `Next: ${items[index+1].title}` : ""}
-        >
-          Next →
-        </button>
-      </div>
+          aria-label="Next step"
+          className="absolute right-0 top-0 h-full w-1/2 cursor-pointer"
+          style={{ background: "transparent", border: "0" }}
+          onClick={() => window.dispatchEvent(new CustomEvent("role:jump", { detail: Math.min(total - 1, index + 1) }))}
+        />
+
+        {/* Actual face content sits above click zones */}
+        <div className="relative pointer-events-none">
+          <RoleStepCard step={items[index]} index={index} total={items.length} />
+        </div>
+      </motion.div>
     </div>
   );
 }

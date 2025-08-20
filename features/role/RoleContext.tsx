@@ -28,6 +28,12 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
     setRoleState(r);
   };
 
+  // Set CSS variable for role aura
+  useEffect(() => {
+    const auraColor = role === "dj" ? "var(--accent-dj)" : "var(--accent-venue)";
+    document.documentElement.style.setProperty("--aura-color", auraColor);
+  }, [role]);
+
   const value = useMemo(() => ({ role, setRole }), [role]);
   return <RoleCtx.Provider value={value}>{children}</RoleCtx.Provider>;
 }

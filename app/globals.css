@@ -32,6 +32,16 @@
   --panel-solid: color-mix(in oklab, var(--brand-bg) 88%, white 12%);
   --neon: color-mix(in oklab, var(--brand-red) 78%, white 22%);
   --neon-soft: color-mix(in oklab, var(--brand-red-2) 55%, transparent);
+  
+  /* Panel glow + focus tokens */
+  --panel-edge: rgba(255, 255, 255, 0.08);
+  --panel-glow: 0 8px 30px rgba(255, 0, 70, 0.18), 0 2px 8px rgba(255, 0, 70, 0.12);
+  --panel-glow-soft: 0 6px 18px rgba(255, 0, 70, 0.14);
+  --panel-glow-strong: 0 12px 40px rgba(255, 0, 70, 0.25);
+  
+  /* Role aura colors */
+  --accent-dj: rgba(255, 0, 70, 0.12);
+  --accent-venue: rgba(0, 150, 255, 0.12);
 }
 @media (prefers-color-scheme: light) {
   :root {
@@ -107,34 +117,77 @@ body {
   overflow-x: clip;
 }
 
-/* ===============================
-   How it works — borderless neon cards
-   =============================== */
-.hiw-card {
+/* ======= HIW Card: Edge‑Runner Hover (Apple‑style) ======= */
+.hiw-card{
   position: relative;
   background: transparent;
   border-radius: 22px;
   padding: 18px 20px;
   box-shadow: none;
-  transition: transform 0.35s ease, filter 0.35s ease;
   isolation: isolate;
+  /* ensure no transform on hover */
+  transform: none !important;
 }
-.hiw-card::before {
+
+/* Animated neon line that travels around the border */
+.hiw-card::after{
   content: "";
   position: absolute;
-  inset: -2px;
+  inset: -1px;                 /* sits just outside the border for a crisp edge */
   border-radius: inherit;
-  background: radial-gradient(120px 80px at 25% 15%, rgba(255, 31, 87, 0.28), transparent 60%);
-  opacity: 0;
-  filter: blur(16px);
-  z-index: -1;
-  transition: opacity 0.35s ease, filter 0.35s ease;
+  pointer-events: none;
+  padding: 1px;                /* thickness of the animated edge */
+  background:
+    conic-gradient(
+      from 0deg,
+      color-mix(in oklab, var(--brand-red) 80%, white 10%) 0%,
+      rgba(255,255,255,0) 12%,
+      rgba(255,255,255,0) 88%,
+      color-mix(in oklab, var(--brand-red) 80%, white 10%) 100%
+    );
+  background-size: 300% 300%;
+  filter: drop-shadow(0 0 10px color-mix(in oklab, var(--brand-red) 55%, transparent))
+          drop-shadow(0 6px 16px color-mix(in oklab, var(--brand-red) 30%, transparent));
+  opacity: 0;                  /* off by default */
+  transition: opacity .25s ease;
+  /* Create a hollow border stroke using masking */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
 }
-.hiw-card:hover {
-  transform: translateY(-4px);
-  filter: drop-shadow(0 12px 24px var(--neon-shadow));
+
+/* Soft inner glow to lift detail without moving the card */
+.hiw-card::before{
+  content:"";
+  position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.03), transparent 40%);
+  opacity:.7;
 }
-.hiw-card:hover::before { opacity: 0.9; filter: blur(22px); }
+
+/* Hover/focus triggers the runner animation */
+.hiw-card:hover::after,
+.hiw-card:focus-within::after{
+  opacity: 1;
+  animation: hiw-edge-run 1.8s cubic-bezier(.22,.61,.36,1) infinite;
+}
+
+/* Keyframes: rotate the conic gradient for a smooth loop */
+@keyframes hiw-edge-run{
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Respect reduced motion: static subtle glow, no animation */
+@media (prefers-reduced-motion: reduce){
+  .hiw-card:hover::after,
+  .hiw-card:focus-within::after{
+    animation: none;
+    opacity: .6;
+  }
+}
 
 .hiw-icon { width: 54px; height: 54px; display: grid; place-items: center; }
 
@@ -1131,11 +1184,214 @@ html { scroll-behavior: smooth; }
 }
 
 /* ===== Role Flow: Solid panels + neon icons ===== */
+/* Defensive rule: prevent clipping during auto-height recalculation */
+#role *[data-no-clip],
+#role .no-clip {
+  overflow: visible !important;
+}
+
+:root{
+  --brand-red: #ff305e;
+  --brand-red-2: #ff5c88;
+}
+
+/* Group shell (stays glass, centered in RoleSection via flex wrapper) */
+.toggle-group{
+  position: relative;
+  display: inline-flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  backdrop-filter: blur(8px);
+  isolation: isolate;
+}
+
+/* Buttons: same padding/weight for symmetry */
+.toggle-btn{
+  border: none;                 /* no borders to avoid double outlines */
+  background: transparent;      /* inactive = glass text only */
+  color: rgba(255,255,255,.68); /* dim text */
+  font-weight: 700;
+  letter-spacing: .1px;
+  border-radius: 999px;
+  padding: 10px 18px;
+  transition: color .18s ease, transform .12s ease, box-shadow .18s ease, background-color .18s ease;
+}
+.toggle-btn:hover{ transform: translateY(-1px); }
+
+/* Active = SAME LOOK as selected step pill: flat neon + glow */
+.toggle-btn[aria-pressed="true"]{
+  color: #fff;
+  background: var(--brand-red);
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,0.12),
+    0 0 0 4px rgba(255,48,94,0.45),
+    0 8px 20px rgba(255,48,94,0.35),
+    0 2px 6px rgba(255,48,94,0.25);
+}
+
+/* Remove any leftover thumb styles if present */
+.toggle-thumb { display: none !important; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .toggle-btn:hover{ transform: none; }
+}
+
+/* ===== Role Section Spacing Tokens ===== */
+:root{
+  /* spacing rhythm tokens (mobile / md / lg) */
+  --rs-pad-y-sm: 3.5rem;  /* 56px */
+  --rs-pad-y-md: 4.5rem;  /* 72px */
+  --rs-pad-y-lg: 5.5rem;  /* 88px */
+
+  --rs-gap-title:    0.5rem;  /* title ↔ subtitle */
+  --rs-gap-toggle:   1.25rem; /* subtitle ↔ toggle */
+  --rs-gap-stack:    1.5rem;  /* toggle ↔ card stack */
+  --rs-gap-controls: 0.75rem; /* card ↔ controls/rail */
+  --rs-gap-chip:     0.5rem;  /* rail ↔ predictions chip */
+  --rs-gap-metrics:  1.75rem; /* chip ↔ metrics */
+}
+
+/* VStack helper to keep rhythm simple */
+.rs-vstack > * + * { margin-top: 1rem; }  /* base fallback */
+
+@media (min-width: 768px){
+  .rs-pad { padding-top: var(--rs-pad-y-md); padding-bottom: var(--rs-pad-y-md); }
+  .rs-vstack > .rs-gap-title    { margin-top: var(--rs-gap-title); }
+  .rs-vstack > .rs-gap-toggle   { margin-top: var(--rs-gap-toggle); }
+  .rs-vstack > .rs-gap-stack    { margin-top: var(--rs-gap-stack); }
+  .rs-vstack > .rs-gap-controls { margin-top: var(--rs-gap-controls); }
+  .rs-vstack > .rs-gap-chip     { margin-top: var(--rs-gap-chip); }
+  .rs-vstack > .rs-gap-metrics  { margin-top: var(--rs-gap-metrics); }
+}
+
+@media (min-width: 1024px){
+  .rs-pad { padding-top: var(--rs-pad-y-lg); padding-bottom: var(--rs-pad-y-lg); }
+}
+
+/* mobile defaults */
+.rs-pad { padding-top: var(--rs-pad-y-sm); padding-bottom: var(--rs-pad-y-sm); }
+.rs-vstack > .rs-gap-title    { margin-top: var(--rs-gap-title); }
+.rs-vstack > .rs-gap-toggle   { margin-top: var(--rs-gap-toggle); }
+.rs-vstack > .rs-gap-stack    { margin-top: var(--rs-gap-stack); }
+.rs-vstack > .rs-gap-controls { margin-top: var(--rs-gap-controls); }
+.rs-vstack > .rs-gap-chip     { margin-top: var(--rs-gap-chip); }
+.rs-vstack > .rs-gap-metrics  { margin-top: var(--rs-gap-metrics); }
+
+/* Optional: tighten section max width slightly for stronger focus */
+.rs-container { max-width: 64rem; } /* 1024px (down from 80rem if you used 5xl) */
+
 /* Solid glass panel (no see-through) */
 /* removed earlier glossy .panel-solid block; keep single opaque override below */
 
 /* Ensure panel-solid is truly opaque and wrappers don't bleed */
-.panel-solid { background: color-mix(in oklab, var(--brand-bg) 88%, black); }
+.panel-solid { 
+  background: rgba(10,10,12,0.92);
+  border: 1px solid var(--panel-edge);
+  box-shadow: var(--panel-glow-soft);
+  backdrop-filter: blur(8px);
+}
+
+/* Focus micro-pulse for primary buttons/toggles */
+@keyframes pulse-focus {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,0,70,0.35); }
+  50%     { box-shadow: 0 0 0 6px rgba(255,0,70,0.15); }
+}
+
+.is-focus-pulse:focus-visible{
+  animation: pulse-focus 1.6s ease-out 1;
+  outline: none;
+}
+
+/* High-contrast focus utility */
+.focus-ring { 
+  outline: none !important; 
+  box-shadow: 0 0 0 3px rgba(255,255,255,.15), 0 0 0 6px rgba(255,48,94,.20); 
+}
+
+/* Step rail styles */
+.step-rail {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.step-pill {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.7);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-pill:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.9);
+}
+
+.step-pill.active {
+  background: var(--brand-red);
+  border-color: var(--brand-red);
+  color: white;
+  box-shadow: 0 0 12px rgba(225,29,72,0.4);
+}
+
+/* Role aura background */
+.role-aura {
+  position: relative;
+}
+
+.role-aura::before {
+  content: '';
+  position: absolute;
+  inset: -2rem;
+  background: radial-gradient(
+    ellipse 800px 600px at 50% 50%,
+    var(--aura-color, rgba(255,0,70,0.08)) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* KPI skin */
+.kpi {
+  border-radius: 18px;
+  border: 1px solid var(--panel-edge);
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02));
+  box-shadow: var(--panel-glow-soft);
+  padding: 18px 20px;
+}
+
+.kpi .kpi-title {
+  font-size: 16px; 
+  font-weight: 650; 
+  letter-spacing: -0.01em;
+}
+
+.kpi .kpi-sub {
+  margin-top: 2px; 
+  font-size: 13.5px; 
+  opacity: .75;
+}
+
+.kpi .kpi-icon {
+  width: 18px; 
+  height: 18px;
+  filter: drop-shadow(0 2px 8px rgba(255,48,94,.25));
+}
 .rolecard { filter: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
 
 /* Role toggle active pill solid neon red */

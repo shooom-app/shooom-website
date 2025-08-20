@@ -9,6 +9,16 @@
   filter: drop-shadow(0 0 8px rgba(225,29,72,.45));
 }
 
+/* Role icon wrapper: crisp inner stroke + soft outer glow */
+.ri-wrap svg {
+  filter:
+    drop-shadow(0 0 0.5px rgba(255,255,255,0.4))
+    drop-shadow(0 2px 6px rgba(255, 0, 70, 0.25))
+    drop-shadow(0 10px 16px rgba(255, 0, 70, 0.15));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* Subtle neon pulse */
 .ri-anim--glow{ animation: riGlow 1.8s ease-in-out infinite; }
 @keyframes riGlow{
