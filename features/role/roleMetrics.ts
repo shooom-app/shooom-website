@@ -1,11 +1,11 @@
 export type MetricItem = {
   value: string;
   label: string;
-  icon: "handshake" | "martini" | "star" | "globe" | "users";
+  icon: "handshake" | "martini" | "star" | "globe" | "users" | "calendarCheck";
 };
 
 export const DJ_METRICS: MetricItem[] = [
-  { value: "5,000+",  label: "bookings completed",        icon: "handshake" },
+  { value: "5,000+",  label: "bookings completed",        icon: "calendarCheck" },
   { value: "20,000+", label: "venues actively searching", icon: "martini" },
   { value: "4.9★",    label: "average review",            icon: "star" },
 ];

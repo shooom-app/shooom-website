@@ -10,7 +10,7 @@ export default function RoleStepCard({
   onDragHandlePointerDown?: (e: ReactPointerEvent<HTMLDivElement>) => void;
 }) {
   return (
-    <div className={`relative overflow-hidden ${compact ? "p-4" : "p-6"} bg-gradient-to-br from-white/[0.08] to-white/[0.03] backdrop-blur-sm border border-white/[0.12] rounded-2xl shadow-2xl shadow-black/20`}>
+    <div className={`role-card relative overflow-hidden ${compact ? "p-4" : "p-6"} bg-gradient-to-br from-white/[0.08] to-white/[0.03] backdrop-blur-sm border border-white/[0.12] rounded-2xl shadow-2xl shadow-black/20`}>
       {/* Subtle inner glow */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent rounded-2xl" />
       
@@ -25,7 +25,7 @@ export default function RoleStepCard({
           onPointerDown={onDragHandlePointerDown}
         >
           {/* Icon with enhanced glow */}
-          <div className="relative">
+          <div className="relative role-badge">
             <div className="absolute inset-0 bg-gradient-to-r from-white/[0.15] to-transparent rounded-full blur-sm scale-110" />
             <RoleIcon
               name={step.icon}

@@ -3,22 +3,22 @@
 // TODO: Re-enable icons as new sections need them. SVGs are kept; registry is slimmed to minimize bundle.
 import type { FC } from "react";
 
-import ProfileCardIcon from "@/components/icons/ProfileCardIcon";
-import CalendarPinsIcon from "@/components/icons/CalendarPinsIcon";
-import HomePinIcon from "@/components/icons/HomePinIcon";
-import SearchWaveIcon from "@/components/icons/SearchWaveIcon";
-import HourglassIcon from "@/components/icons/HourglassIcon";
-import StarBadgeIcon from "@/components/icons/StarBadgeIcon";
+import ProfileBadgeNeonIcon from "@/components/icons/ProfileBadgeNeonIcon";
+import PinBadgeNeonIcon from "@/components/icons/PinBadgeNeonIcon";
+import HomeBadgeNeonIcon from "@/components/icons/HomeBadgeNeonIcon";
+import SearchBadgeNeonIcon from "@/components/icons/SearchBadgeNeonIcon";
+import ClockBadgeNeonIcon from "@/components/icons/ClockBadgeNeonIcon";
+import StarBadgeNeonIcon from "@/components/icons/StarBadgeNeonIcon";
 import MartiniIcon from "@/components/icons/MartiniIcon";
-import HandshakeIcon from "@/components/icons/HandshakeIcon";
+import CalendarCheckNeonIcon from "@/components/icons/CalendarCheckNeonIcon";
 import LoopIcon from "@/components/icons/LoopIcon";
 import CardsIcon from "@/components/icons/CardsIcon";
 import VinylIcon from "@/components/icons/VinylIcon";
 import CrowdIcon from "@/components/icons/CrowdIcon";
 
 export type IconName =
-  | "vinyl" | "calendar" | "city" | "search" | "hourglass" | "star"
-  | "martini" | "cards" | "loop" | "handshake" | "crowd";
+  | "vinyl" | "host" | "home" | "search" | "clock" | "star"
+  | "martini" | "cards" | "loop" | "calendarCheck" | "crowd";
 
 const REGISTRY: Record<IconName, FC<{ className?: string }>> = {
   // vinyl: VinylIcon,
@@ -26,7 +26,7 @@ const REGISTRY: Record<IconName, FC<{ className?: string }>> = {
   // city: HomePinIcon,
   search: SearchWaveIcon,
   // hourglass: HourglassIcon,
-  // star: StarBadgeIcon,
+  star: StarBadgeNeonIcon,
   // martini: MartiniIcon,
   // cards: CardsIcon,
   // loop: LoopIcon,

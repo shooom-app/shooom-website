@@ -71,6 +71,79 @@
 .ri-anim--clasp{ animation: riClasp 1.8s ease-in-out infinite; transform-origin: 50% 60%; }
 @keyframes riClasp{ 0%,100%{ transform:scale(1) } 50%{ transform:scale(.96) } }
 
+/* ===== Handshake (deal) — role-only animation =====
+   Motion: hands reach in slightly, clasp, gentle pulse; no jank, loops slowly.
+*/
+.ri-anim--clasp .hs-left  { transform-origin: 28px 32px; }
+.ri-anim--clasp .hs-right { transform-origin: 36px 32px; }
+
+/* Initial relaxed state */
+.ri-anim--clasp .hs-left,
+.ri-anim--clasp .hs-right { transform: translateX(0px); }
+
+/* Halo starts tiny; we animate r/opacity */
+.ri-anim--clasp .hs-pulse {
+  fill: currentColor;
+  opacity: 0;
+  transform-origin: 32px 34px;
+}
+
+/* Run the sequence continuously but calmly */
+.ri-anim--clasp {
+  animation: ri-clasp-seq 3.2s ease-in-out infinite;
+}
+@keyframes ri-clasp-seq {
+  /* 0-25%: approach (sub-pixel to stay crisp) */
+  0%   { }
+  12%  { }
+  25%  { }
+  /* 26-40%: slight inward nudge to "clasp" */
+  30%  { }
+  40%  { }
+  /* 41-60%: pulse halo, then fade */
+  50%  { }
+  60%  { }
+  /* 61-100%: return to relaxed */
+  100% { }
+}
+
+/* Use nested animations to keep strokes crisp (no continuous transform on the svg root) */
+.ri-anim--clasp .hs-left  { animation: ri-clasp-left 3.2s ease-in-out infinite; }
+.ri-anim--clasp .hs-right { animation: ri-clasp-right 3.2s ease-in-out infinite; }
+.ri-anim--clasp .hs-pulse { animation: ri-clasp-pulse 3.2s ease-in-out infinite; }
+
+@keyframes ri-clasp-left {
+  0%   { transform: translateX(0px); }
+  22%  { transform: translateX(0px); }
+  32%  { transform: translateX(1.1px); }    /* reach in */
+  40%  { transform: translateX(0.6px); }    /* settle */
+  58%  { transform: translateX(0.3px); }
+  100% { transform: translateX(0px); }
+}
+@keyframes ri-clasp-right {
+  0%   { transform: translateX(0px); }
+  22%  { transform: translateX(0px); }
+  32%  { transform: translateX(-1.1px); }   /* reach in */
+  40%  { transform: translateX(-0.6px); }   /* settle */
+  58%  { transform: translateX(-0.3px); }
+  100% { transform: translateX(0px); }
+}
+@keyframes ri-clasp-pulse {
+  0%,20%   { r: 0.1; opacity: 0; }
+  35%      { r: 2.2; opacity: .22; }
+  48%      { r: 5.2; opacity: .16; }
+  60%      { r: 7.5; opacity: 0; }
+  100%     { r: 0.1; opacity: 0; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ri-anim--clasp,
+  .ri-anim--clasp .hs-left,
+  .ri-anim--clasp .hs-right,
+  .ri-anim--clasp .hs-pulse { animation: none !important; }
+}
+
 /* Slow rotate (globe) */
 .ri-anim--rotate{ animation: riRotate 6s linear infinite; transform-origin: 50% 50%; }
 @keyframes riRotate{ from{ transform: rotate(0) } to{ transform: rotate(360deg) } }
@@ -81,4 +154,289 @@
 
 @media (prefers-reduced-motion: reduce){
   .ri-wrap,[class*="ri-anim--"],.ri-radar-ring{ animation: none !important; }
+}
+
+/* Stroke-only star: outline draw + soft neon glow (no fill) */
+.ri-anim--star .sb-star {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: ri-star-draw 1.1s ease forwards, ri-star-glow 3s ease-in-out infinite 1.1s;
+}
+
+/* Optional: tiny badge breathing to match the family */
+.ri-anim--star rect {
+  animation: ri-badge-breathe 3s ease-in-out infinite 1.1s;
+  transform-origin: 32px 32px;
+}
+
+@keyframes ri-star-draw { to { stroke-dashoffset: 0; } }
+@keyframes ri-star-glow {
+  0%,100% { filter: drop-shadow(0 0 1px var(--brand-red)) drop-shadow(0 0 6px var(--brand-red)); }
+  50%     { filter: drop-shadow(0 0 2px var(--brand-red)) drop-shadow(0 0 12px var(--brand-red)); }
+}
+@keyframes ri-badge-breathe { 0%,100% { opacity:.95; } 50% { opacity:1; } }
+
+/* Hard kill any legacy fill/blink from previous star implementations */
+.ri-anim--star .sb-star,
+.ri-anim--star rect {
+  fill: none !important;
+}
+
+/* draw-only star: no glow, no opacity/color fluctuations */
+.ri-anim--star-draw .star-outline {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  animation: ri-draw 900ms ease-out forwards; /* stops after draw */
+}
+
+@keyframes ri-draw { to { stroke-dashoffset: 0; } }
+
+/* prevent hover from changing icon color inside Role cards */
+.role-card .role-badge { transition: filter 200ms ease; }
+.role-card:hover .role-badge { color: inherit; }
+
+/* ===== Clock Badge: role-only clock hands rotation animation ===== */
+/* Clock animation */
+.ri-anim--clock .clk-hour {
+  transform-origin: 32px 32px;
+  animation: ri-clock-hour 72s linear infinite;
+}
+.ri-anim--clock .clk-minute {
+  transform-origin: 32px 32px;
+  animation: ri-clock-minute 6s linear infinite;
+}
+
+@keyframes ri-clock-hour {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes ri-clock-minute {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ri-anim--clock .clk-hour,
+  .ri-anim--clock .clk-minute {
+    animation: none !important;
+  }
+}
+
+/* ===== Search Badge: role-only draw + sweep animation ===== */
+/* Search badge animation */
+.ri-anim--search .sb-lens {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: ri-search-draw 1.2s ease forwards;
+}
+.ri-anim--search .sb-handle {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  animation: ri-search-handle 1.2s ease forwards 0.2s,
+             ri-search-nudge 2.6s ease-in-out infinite 1.4s;
+}
+
+@keyframes ri-search-draw { to { stroke-dashoffset: 0; } }
+@keyframes ri-search-handle { to { stroke-dashoffset: 0; } }
+@keyframes ri-search-nudge {
+  0%,100% { transform: translateX(0); }
+  50%     { transform: translateX(1px) translateY(1px); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .ri-anim--search .sb-lens,
+  .ri-anim--search .sb-handle {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* ===== Host Pin Badge: role-only draw + pulse animation ===== */
+/* Host pin animation */
+.ri-anim--host .pb-pin {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: ri-host-draw 1.3s ease forwards;
+}
+
+.ri-anim--host .pb-dot {
+  animation: ri-host-pulse 2.2s ease-in-out infinite 1.3s;
+  transform-origin: 32px 31px;
+}
+
+@keyframes ri-host-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes ri-host-pulse {
+  0%,100% { r: 2.6; opacity:.9; }
+  50%     { r: 3.2; opacity:1; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .ri-anim--host .pb-pin,
+  .ri-anim--host .pb-dot {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* ===== Plane Badge: role-only draw + take-off animation ===== */
+/* Airplane draw + take-off animation */
+.ri-anim--plane .pb-plane {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: ri-plane-draw 1.2s ease forwards, ri-plane-loop 3s ease-in-out infinite 1.4s;
+}
+
+@keyframes ri-plane-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes ri-plane-loop {
+  0%,100% { transform: translateX(0); }
+  50% { transform: translateX(1.2px) translateY(-0.6px); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .ri-anim--plane .pb-plane { animation: none !important; stroke-dashoffset: 0 !important; }
+}
+
+/* ===== Home Badge: role-only draw + pulse animation ===== */
+/* Home badge animation */
+.ri-anim--home .hb-house {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: ri-home-draw 1.4s ease forwards;
+}
+
+/* Badge pulse */
+.ri-anim--home rect {
+  animation: ri-home-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes ri-home-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes ri-home-pulse {
+  0%,100% { opacity:.9; }
+  50%     { opacity:1; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .ri-anim--home .hb-house,
+  .ri-anim--home rect {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* ===== Profile Badge: role-only draw + pulse animation ===== */
+/* Profile icon tick animation */
+.ri-anim--profile .pb-check {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: ri-profile-tick 1.2s ease forwards;
+}
+
+/* Pulse halo for the whole badge */
+.ri-anim--profile rect {
+  animation: ri-profile-badge-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes ri-profile-tick {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes ri-profile-badge-pulse {
+  0%,100% { opacity:.9; }
+  50% { opacity:1; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .ri-anim--profile .pb-check,
+  .ri-anim--profile rect {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* ===== Calendar Check: role-only tick animation ===== */
+/* Keep your existing .ri-wrap glow; this adds the tick animation only */
+.ri-anim--tick .cc-check {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: ri-tick-draw 1.2s ease forwards;
+}
+
+/* Slight sheen pulse on the badge circle for a premium feel (optional) */
+.ri-anim--tick circle {
+  animation: ri-badge-soft 2.4s ease-in-out infinite;
+  transform-origin: 32px 40px;
+}
+
+@keyframes ri-tick-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes ri-badge-soft {
+  0%,100% { opacity: .95; }
+  50%     { opacity: 1; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .ri-anim--tick .cc-check,
+  .ri-anim--tick circle {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* ===== Sharper neon for small icons ===== */
+/* Remove heavy blur; use tight shadows so it doesn't fuzz */
+.ri--sharp svg {
+  filter:
+    drop-shadow(0 0 0.35px currentColor)
+    drop-shadow(0 2px 6px color-mix(in oklab, currentColor 35%, transparent));
+}
+
+/* ===== Handshake: gentle reach → clasp → pulse ===== */
+/* Crisp neon without blur */
+.ri-wrap svg {
+  filter:
+    drop-shadow(0 0 0.35px currentColor)
+    drop-shadow(0 2px 6px color-mix(in oklab, currentColor 35%, transparent));
+}
+
+/* Handshake: gentle reach → clasp → pulse */
+.ri-anim--clasp .hs-left  { transform-origin: 28px 32px; }
+.ri-anim--clasp .hs-right { transform-origin: 36px 32px; }
+
+.ri-anim--clasp .hs-left  { animation: ri-clasp-left 3s ease-in-out infinite; }
+.ri-anim--clasp .hs-right { animation: ri-clasp-right 3s ease-in-out infinite; }
+.ri-anim--clasp .hs-pulse { animation: ri-clasp-pulse 3s ease-in-out infinite; fill: currentColor; opacity: 0; }
+
+@keyframes ri-clasp-left  {
+  0%,22% { transform: translateX(0); }
+  32%    { transform: translateX(0.8px); }
+  40%    { transform: translateX(0.4px); }
+  60%    { transform: translateX(0.2px); }
+  100%   { transform: translateX(0); }
+}
+@keyframes ri-clasp-right {
+  0%,22% { transform: translateX(0); }
+  32%    { transform: translateX(-0.8px); }
+  40%    { transform: translateX(-0.4px); }
+  60%    { transform: translateX(-0.2px); }
+  100%   { transform: translateX(0); }
+}
+@keyframes ri-clasp-pulse {
+  0%,22% { r: 0.1; opacity: 0; }
+  38%    { r: 1.8; opacity: .24; }
+  52%    { r: 4.2; opacity: .16; }
+  64%    { r: 6.2; opacity: 0; }
+  100%   { r: 0.1; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .ri-anim--clasp .hs-left,
+  .ri-anim--clasp .hs-right,
+  .ri-anim--clasp .hs-pulse { animation: none !important; }
 }

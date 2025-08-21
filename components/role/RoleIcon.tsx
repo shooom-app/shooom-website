@@ -1,40 +1,47 @@
 "use client";
-import ProfileCardIcon   from "@/components/icons/ProfileCardIcon";
-import HomePinIcon       from "@/components/icons/HomePinIcon";
-import CalendarPinsIcon  from "@/components/icons/CalendarPinsIcon";
-import SearchWaveIcon    from "@/components/icons/SearchWaveIcon";
-import HourglassIcon     from "@/components/icons/HourglassIcon";
-import StarBadgeIcon     from "@/components/icons/StarBadgeIcon";
-import MartiniIcon       from "@/components/icons/MartiniIcon";
-import CardsIcon         from "@/components/icons/CardsIcon";
-import LoopIcon          from "@/components/icons/LoopIcon";
-import HandshakeIcon     from "@/components/icons/HandshakeIcon";
+import ProfileBadgeNeonIcon from "@/components/icons/ProfileBadgeNeonIcon";
+import HomeBadgeNeonIcon   from "@/components/icons/HomeBadgeNeonIcon";
+import PinBadgeNeonIcon    from "@/components/icons/PinBadgeNeonIcon";
+import SearchBadgeNeonIcon from "@/components/icons/SearchBadgeNeonIcon";
+import ClockBadgeNeonIcon  from "@/components/icons/ClockBadgeNeonIcon";
+import StarBadgeNeonIcon   from "@/components/icons/StarBadgeNeonIcon";
+import MartiniIcon         from "@/components/icons/MartiniIcon";
+import CardsIcon           from "@/components/icons/CardsIcon";
+import LoopIcon            from "@/components/icons/LoopIcon";
+import CalendarCheckNeonIcon from "@/components/icons/CalendarCheckNeonIcon";
 
 type StepIconName =
-  | "profile" | "city" | "calendar" | "search" | "hourglass" | "star"
-  | "martini" | "cards" | "loop" | "handshake";
+  | "profile" | "home" | "host" | "search" | "clock" | "star"
+  | "martini" | "cards" | "loop" | "calendarCheck";
 
 export function RoleIcon({ name, anim, className="h-7 w-7" }:{
   name: StepIconName;
-  anim?: "glow"|"wobble"|"bounce"|"radar"|"sandflip"|"twinkle"|"ripple"|"stack"|"loop"|"clasp";
+  anim?: "glow"|"wobble"|"bounce"|"radar"|"sandflip"|"twinkle"|"ripple"|"stack"|"loop"|"tick"|"profile"|"home"|"host"|"search"|"clock"|"star"|"star-draw";
   className?: string;
 }){
-  const animClass = anim ? `ri-anim--${anim}` : "ri-anim--glow";
+  // Map star to draw-only variant
+  const mappedAnim = anim === "star" ? "star-draw" : anim;
+  const animClass = mappedAnim ? `ri-anim--${mappedAnim}` : "ri-anim--glow";
   const map: Record<StepIconName, JSX.Element> = {
-    profile:   <ProfileCardIcon  className={className} />,
-    city:      <HomePinIcon      className={className} />,
-    calendar:  <CalendarPinsIcon className={className} />,
-    search:    <SearchWaveIcon   className={className} />,
-    hourglass: <HourglassIcon    className={className} />,
-    star:      <StarBadgeIcon    className={className} />,
-    martini:   <MartiniIcon      className={className} />,
-    cards:     <CardsIcon        className={className} />,
-    loop:      <LoopIcon         className={className} />,
-    handshake: <HandshakeIcon    className={className} />,
+    profile:   <ProfileBadgeNeonIcon className={className} />,
+    home:      <HomeBadgeNeonIcon   className={className} />,
+    host:      <PinBadgeNeonIcon    className={className} />,
+    search:    <SearchBadgeNeonIcon className={className} />,
+    clock:     <ClockBadgeNeonIcon  className={className} />,
+    star: <StarBadgeNeonIcon className={className} />,
+    martini:   <MartiniIcon         className={className} />,
+    cards:     <CardsIcon           className={className} />,
+    loop:      <LoopIcon            className={className} />,
+    calendarCheck: <CalendarCheckNeonIcon className={className} />,
   };
+  
+  // Back-compat: if any data still says "handshake", map it to the new icon
+  const isHandshake = name === "handshake";
+  const wrapClasses = `ri-wrap ${animClass}${isHandshake ? " ri--sharp" : ""}`;
+  
   return (
-    <span className={`ri-wrap ${animClass}`} aria-hidden="true">
-      {map[name]}
+    <span className={wrapClasses} aria-hidden="true">
+      {map[name] || map.calendarCheck}
       {anim === "radar" && <span className="ri-radar-ring" />}
     </span>
   );

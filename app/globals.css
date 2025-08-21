@@ -117,76 +117,63 @@ body {
   overflow-x: clip;
 }
 
-/* ======= HIW Card: Edge‑Runner Hover (Apple‑style) ======= */
+/* ======= HIW Card: Subsurface Glow Hover ======= */
+/* Base card */
 .hiw-card{
   position: relative;
-  background: transparent;
-  border-radius: 22px;
-  padding: 18px 20px;
-  box-shadow: none;
-  isolation: isolate;
-  /* ensure no transform on hover */
-  transform: none !important;
-}
-
-/* Animated neon line that travels around the border */
-.hiw-card::after{
-  content: "";
-  position: absolute;
-  inset: -1px;                 /* sits just outside the border for a crisp edge */
-  border-radius: inherit;
-  pointer-events: none;
-  padding: 1px;                /* thickness of the animated edge */
+  border-radius: 16px;
   background:
-    conic-gradient(
-      from 0deg,
-      color-mix(in oklab, var(--brand-red) 80%, white 10%) 0%,
-      rgba(255,255,255,0) 12%,
-      rgba(255,255,255,0) 88%,
-      color-mix(in oklab, var(--brand-red) 80%, white 10%) 100%
-    );
-  background-size: 300% 300%;
-  filter: drop-shadow(0 0 10px color-mix(in oklab, var(--brand-red) 55%, transparent))
-          drop-shadow(0 6px 16px color-mix(in oklab, var(--brand-red) 30%, transparent));
-  opacity: 0;                  /* off by default */
-  transition: opacity .25s ease;
-  /* Create a hollow border stroke using masking */
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
+    linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.06);          /* softer, not bright */
+  box-shadow:
+    0 6px 16px rgba(0,0,0,.28),
+    0 1px 2px rgba(0,0,0,.25);
+  backdrop-filter: blur(8px);
+  transition:
+    box-shadow .22s ease,
+    border-color .22s ease,
+    background-color .22s ease,
+    transform .22s ease;
+  transform: translateZ(0);                          /* paint optimization */
 }
 
-/* Soft inner glow to lift detail without moving the card */
+/* Clean hover: no outline, gentle lift + inner glow */
+.hiw-card:hover{
+  border-color: rgba(255,255,255,.08);
+  box-shadow:
+    0 14px 36px rgba(255,48,94,.16),                /* soft brand glow */
+    0 6px 18px rgba(0,0,0,.35);
+  transform: translateY(-1px);                       /* tiny lift (optional) */
+}
+
+/* Subtle top highlight (static, not animated) */
 .hiw-card::before{
   content:"";
   position:absolute; inset:0; border-radius:inherit; pointer-events:none;
   background:
-    linear-gradient(180deg, rgba(255,255,255,.03), transparent 40%);
+    radial-gradient(90% 50% at 50% -10%, rgba(255,255,255,.06), transparent 55%);
   opacity:.7;
 }
 
-/* Hover/focus triggers the runner animation */
-.hiw-card:hover::after,
-.hiw-card:focus-within::after{
-  opacity: 1;
-  animation: hiw-edge-run 1.8s cubic-bezier(.22,.61,.36,1) infinite;
+/* Remove any focus rings that look like outlines */
+.hiw-card:focus,
+.hiw-card:focus-visible{
+  outline: none !important;
+  box-shadow:
+    0 14px 36px rgba(255,48,94,.18),
+    0 6px 18px rgba(0,0,0,.35);
 }
 
-/* Keyframes: rotate the conic gradient for a smooth loop */
-@keyframes hiw-edge-run{
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* Defensive: kill accidental outline/ring classes applied elsewhere */
+#role .hiw-card:where(.ring-*, .outline-*, .border-red-500){
+  outline: none !important;
+  box-shadow: inherit !important;
+  border-color: rgba(255,255,255,.06) !important;
 }
 
-/* Respect reduced motion: static subtle glow, no animation */
+/* Reduced motion: no lift */
 @media (prefers-reduced-motion: reduce){
-  .hiw-card:hover::after,
-  .hiw-card:focus-within::after{
-    animation: none;
-    opacity: .6;
-  }
+  .hiw-card:hover{ transform: none; }
 }
 
 .hiw-icon { width: 54px; height: 54px; display: grid; place-items: center; }
